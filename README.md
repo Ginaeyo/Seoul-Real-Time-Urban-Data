@@ -13,7 +13,7 @@ Seoul Traffic Viewer is a data visualization dashboard that displays traffic con
 | 에르덴자야 |   2025203503   |      Ginaeyo      | Team Leader |
 |   민경환  |   2023203089   |    kimmolang11    | Team Member |
 |   김효중  |   2022321028   | a01056405156-ctrl | Team Member |
-|  할리오나  |   2025403507   | _________________ | Team Member |
+|  할리오나  |   2025403507   |     liuka0715     | Team Member |
 |   원미혜  |   2024403150   |     today0505     | Team Member |
 
 ---
