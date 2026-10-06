@@ -1,20 +1,39 @@
+
 # Seoul Traffic Viewer
 
 ## Project Overview
 
-Seoul Traffic Viewer is a data visualization dashboard that displays traffic congestion information in Seoul. The system processes traffic data and presents it through a map-based interface, allowing users to easily understand traffic conditions in different districts of Seoul.
+Seoul Traffic Viewer is an Object-Oriented Programming (OOP) project that visualizes traffic congestion information in Seoul through an interactive map interface.
+
+The system allows users to view traffic conditions in different districts of Seoul using color-based indicators. Users can select a district, check its traffic congestion level, and explore traffic information through a simple and intuitive interface.
+
+This project aims to demonstrate the application of Object-Oriented Programming concepts such as encapsulation, abstraction, modularity, and class interaction.
 
 ---
 
 ## Contributors
 
-|   Name   | Student Number |     GitHub ID     |     Role     |
-|----------|----------------|-------------------|--------------|
-| 에르덴자야 |   2025203503   |      Ginaeyo      | Team Leader |
-|   민경환  |   2023203089   |    kimmolang11    | Team Member |
-|   김효중  |   2022321028   | a01056405156-ctrl | Team Member |
-|  할리오나  |   2025403507   |     liuka0715     | Team Member |
-|   원미혜  |   2024403150   |     today0505     | Team Member |
+| Name | Student Number | GitHub ID | Role |
+|------|------|------|------|
+| 에르덴자야 | 2025203503 | Ginaeyo | Team Leader |
+| 민경환 | 2023203089 | kimmolang11 | Team Member |
+| 김효중 | 2022321028 | a01056405156-ctrl | Team Member |
+| 할리오나 | 2025403507 | liuka0715 | Team Member |
+| 원미혜 | 2024403150 | today0505 | Team Member |
+
+---
+
+## Development Status
+
+| Feature | Status |
+|----------|----------|
+| Project Planning | ✅ Complete |
+| GitHub Repository Setup | ✅ Complete |
+| Class Design | ✅ Complete |
+| Traffic Data Processing | 🟡 In Progress |
+| Map Visualization | 🟡 In Progress |
+| API Integration | ⬜ Planned |
+| Testing | ⬜ Planned |
 
 ---
 
@@ -28,156 +47,220 @@ Seoul Traffic Viewer is a data visualization dashboard that displays traffic con
 
 1. Clone the repository
 
+```bash
 git clone https://github.com/Ginaeyo/seoul-traffic-viewer.git
+```
 
 2. Move to the project directory
 
+```bash
 cd seoul-traffic-viewer
+```
 
 3. Run the application
 
+```bash
 python main.py
+```
 
 ---
 
-## Data Used
+## Data Source
 
-### Main Data
+### Planned Data Sources
 
-- Seoul Traffic Congestion Data
+- Seoul Open Data API
+- Simulated Traffic Data (for prototype development)
 
 ### Additional Data
 
 - Seoul District Information
 - Seoul Geographic Information
 
-The additional data will be used to improve map visualization and provide district-based traffic information.
+These datasets will be used to improve traffic visualization and provide district-based traffic information.
+
+---
+
+## Main Features
+
+### Seoul Map Display
+
+Display a map of Seoul for traffic visualization.
+
+### Traffic Congestion Visualization
+
+Traffic conditions are represented using color indicators:
+
+- 🟢 Green = Low Congestion
+- 🟡 Yellow = Medium Congestion
+- 🔴 Red = High Congestion
+
+### District Selection
+
+Users can select districts such as:
+
+- Gangnam
+- Songpa
+- Jongno
+- Mapo
+- Yongsan
+
+### District Traffic Information
+
+Display traffic information for the selected district.
+
+### Refresh Traffic Data
+
+Users can refresh traffic information to view updated data.
+
+---
+
+## Class Diagram
+
+![Class Diagram](docs/class_diagram.png)
+
+---
+
+## Project Structure
+
+```text
+seoul-traffic-viewer
+│
+├── app
+│   ├── traffic_data.py
+│   ├── traffic_api.py
+│   ├── map_manager.py
+│   ├── user.py
+│   └── main_app.py
+│
+├── docs
+│   ├── architecture.md
+│   ├── class_diagram.png
+│   └── use_case_diagram.png
+│
+├── assets
+│
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── LICENSE
+```
 
 ---
 
 ## Class Design
 
-### 1. TrafficData
+### TrafficData
 
 #### Responsibility
+
 Stores and manages traffic congestion information.
 
 #### Attributes
+
 - district
-- congestion_level
+- congestionLevel
+- updateTime
 
 #### Methods
-- get_congestion()
-- set_congestion()
+
+- getCongestion()
+- setCongestion()
 
 ---
 
-### 2. TrafficAPI
+### TrafficAPI
 
 #### Responsibility
-Retrieves traffic data from the data source.
+
+Retrieves traffic data from a data source.
 
 #### Methods
-- get_data()
-- update_data()
+
+- getTrafficData()
+- updateTrafficData()
 
 ---
 
-### 3. MapManager
+### MapManager
 
 #### Responsibility
-Manages map display and visualization.
+
+Displays and updates the traffic map.
 
 #### Methods
-- show_map()
-- update_map()
+
+- displayMap()
+- updateMap()
 
 ---
 
-### 4. User
+### User
 
 #### Responsibility
-Handles user information and interactions.
+
+Handles user interaction.
 
 #### Attributes
-- name
+
+- selectedDistrict
 
 #### Methods
-- search_district()
+
+- selectDistrict()
 
 ---
 
-### 5. MainApp
+### MainApp
 
 #### Responsibility
-Controls the overall program flow and coordinates interactions between objects.
+
+Controls the overall application flow.
 
 #### Methods
+
 - run()
 - initialize()
 
 ---
 
-## Object Interaction
+## System Flow
 
-User
-
-↓
-
-MainApp
-
-↓
-
-TrafficAPI
-
-↓
-
-TrafficData
-
-↓
-
-MapManager
-
-↓
-
-Dashboard Visualization
-
-### Processing Flow
-
-1. User requests traffic information.
+1. The user selects a district.
 2. MainApp receives the request.
-3. TrafficAPI retrieves traffic data.
-4. TrafficData stores and processes the data.
-5. MapManager visualizes the processed data.
-6. The dashboard displays the final result to the user.
+3. TrafficAPI retrieves traffic information.
+4. TrafficData stores and manages the data.
+5. MapManager visualizes the information on the map.
+6. The result is displayed to the user.
 
 ---
 
-## Dashboard Features
+## Object-Oriented Programming Concepts
 
-### Seoul Traffic Map
+### Encapsulation
 
-Displays traffic congestion information on a map of Seoul.
+Each class manages its own data and functionality.
 
-### District Traffic Information
+### Abstraction
 
-Shows traffic conditions for each district.
+Complex traffic data processing is hidden behind simple methods.
 
-### Traffic Visualization
+### Modularity
 
-Visualizes traffic congestion levels using charts and indicators.
+The system is divided into independent classes with specific responsibilities.
 
-### User Interaction
+### Reusability
 
-Allows users to explore traffic information through the dashboard interface.
+Classes can be reused and extended in future versions.
 
 ---
 
-## GitHub Repository
+## Expected Outcome
 
-Repository URL:
-
-https://github.com/Ginaeyo/seoul-traffic-viewer
+- Interactive traffic visualization system
+- District-based traffic information display
+- Practical application of OOP concepts
+- Foundation for future real-time traffic monitoring systems
 
 ---
 
@@ -186,21 +269,28 @@ https://github.com/Ginaeyo/seoul-traffic-viewer
 ### Phase 1
 - Create project structure
 - Design classes
+- Set up GitHub repository
 
 ### Phase 2
-- Implement data processing classes
-- Implement API connection
+- Implement TrafficData and TrafficAPI
+- Develop data processing functions
 
 ### Phase 3
-- Implement dashboard visualization
-- Integrate all components
+- Implement MapManager and User interaction
+- Integrate all classes
 
 ### Phase 4
 - Testing and bug fixing
-- Final deployment
+- Final presentation preparation
+
+---
+
+## GitHub Repository
+
+https://github.com/Ginaeyo/seoul-traffic-viewer
 
 ---
 
 ## License
 
-This project was developed for the Object-Oriented Programming Team Project.
+This project was developed for the Object-Oriented Programming Team Project at Kwangwoon University.
