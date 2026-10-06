@@ -292,5 +292,5 @@ https://github.com/Ginaeyo/seoul-traffic-viewer
 ---
 
 ## License
-
+![License](main/License)
 This project was developed for the Object-Oriented Programming Team Project at Kwangwoon University.
