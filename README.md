@@ -1,295 +1,113 @@
+# Seoul Real-Time Urban Data
 
-# Seoul Traffic Viewer
+## 프로젝트 소개
 
-## Project Overview
+본 프로젝트는 서울시 실시간 도시데이터 API를 활용하여 사용자가 서울의 특정 지역을 선택하면 해당 지역의 실시간 정보를 확인할 수 있는 프로그램입니다.
 
-Seoul Traffic Viewer is an Object-Oriented Programming (OOP) project that visualizes traffic congestion information in Seoul through an interactive map interface.
+사용자는 강남역, 홍대입구, 잠실 등 서울의 주요 지역을 선택할 수 있으며, 선택한 지역의 혼잡도 및 날씨 정보를 확인할 수 있습니다.
 
-The system allows users to view traffic conditions in different districts of Seoul using color-based indicators. Users can select a district, check its traffic congestion level, and explore traffic information through a simple and intuitive interface.
+본 프로젝트는 객체지향 프로그래밍(OOP)의 개념을 적용하여 실제 공공데이터를 활용하는 것을 목표로 합니다.
 
-This project aims to demonstrate the application of Object-Oriented Programming concepts such as encapsulation, abstraction, modularity, and class interaction.
+## 주요 기능
 
----
+- 서울 지역 선택
+- 실시간 인구 혼잡도 확인
+- 실시간 날씨 정보 확인
+- 사용자 친화적인 형태로 데이터 제공
+- 객체지향 프로그래밍 구조 적용
 
-## Contributors
+## 클래스 구조
 
-| Name | Student Number | GitHub ID | Role |
-|------|------|------|------|
-| 에르덴자야 | 2025203503 | Ginaeyo | Team Leader |
-| 민경환 | 2023203089 | kimmolang11 | Team Member |
-| 김효중 | 2022321028 | a01056405156-ctrl | Team Member |
-| 할리오나 | 2025403507 | liuka0715 | Team Member |
-| 원미혜 | 2024403150 | today0505 | Team Member |
+### UrbanData
+선택한 지역의 실시간 데이터를 저장합니다.
 
----
+### SeoulAPI
+서울시 실시간 도시데이터 API에 요청을 보내고 데이터를 가져옵니다.
 
-## Development Status
+### AreaManager
+지원하는 지역 목록을 관리하고 지역 검색 기능을 제공합니다.
 
-| Feature | Status |
-|----------|----------|
-| Project Planning | ✅ Complete |
-| GitHub Repository Setup | ✅ Complete |
-| Class Design | ✅ Complete |
-| Traffic Data Processing | 🟡 In Progress |
-| Map Visualization | 🟡 In Progress |
-| API Integration | ⬜ Planned |
-| Testing | ⬜ Planned |
+### DataAnalyzer
+API 데이터를 분석하여 사용자가 이해하기 쉬운 형태로 변환합니다.
 
----
-
-## How to Run
-
-### Requirements
-
-- Python 3.x
-
-### Installation
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/Ginaeyo/seoul-traffic-viewer.git
-```
-
-2. Move to the project directory
-
-```bash
-cd seoul-traffic-viewer
-```
-
-3. Run the application
-
-```bash
-python main.py
-```
-
----
-
-## Data Source
-
-### Planned Data Sources
-
-- Seoul Open Data API
-- Simulated Traffic Data (for prototype development)
-
-### Additional Data
-
-- Seoul District Information
-- Seoul Geographic Information
-
-These datasets will be used to improve traffic visualization and provide district-based traffic information.
-
----
-
-## Main Features
-
-### Seoul Map Display
-
-Display a map of Seoul for traffic visualization.
-
-### Traffic Congestion Visualization
-
-Traffic conditions are represented using color indicators:
-
-- 🟢 Green = Low Congestion
-- 🟡 Yellow = Medium Congestion
-- 🔴 Red = High Congestion
-
-### District Selection
-
-Users can select districts such as:
-
-- Gangnam
-- Songpa
-- Jongno
-- Mapo
-- Yongsan
-
-### District Traffic Information
-
-Display traffic information for the selected district.
-
-### Refresh Traffic Data
-
-Users can refresh traffic information to view updated data.
-
----
-
-## Class Diagram
-
-![Class Diagram](docs/class_diagram.png)
-
----
-
-## Project Structure
-
-```text
-seoul-traffic-viewer
-│
-├── app
-│   ├── traffic_data.py
-│   ├── traffic_api.py
-│   ├── map_manager.py
-│   ├── user.py
-│   └── main_app.py
-│
-├── docs
-│   ├── architecture.md
-│   ├── class_diagram.png
-│   └── use_case_diagram.png
-│
-├── assets
-│
-├── README.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-└── LICENSE
-```
-
----
-
-## Class Design
-
-### TrafficData
-
-#### Responsibility
-
-Stores and manages traffic congestion information.
-
-#### Attributes
-
-- district
-- congestionLevel
-- updateTime
-
-#### Methods
-
-- getCongestion()
-- setCongestion()
-
----
-
-### TrafficAPI
-
-#### Responsibility
-
-Retrieves traffic data from a data source.
-
-#### Methods
-
-- getTrafficData()
-- updateTrafficData()
-
----
-
-### MapManager
-
-#### Responsibility
-
-Displays and updates the traffic map.
-
-#### Methods
-
-- displayMap()
-- updateMap()
-
----
-
-### User
-
-#### Responsibility
-
-Handles user interaction.
-
-#### Attributes
-
-- selectedDistrict
-
-#### Methods
-
-- selectDistrict()
-
----
+### LocationSelector
+사용자의 지역 선택을 처리합니다.
 
 ### MainApp
+프로그램 전체 흐름을 관리하고 각 클래스를 연결합니다.
 
-#### Responsibility
+## 프로그램 동작 흐름
 
-Controls the overall application flow.
+User
+↓
+LocationSelector
+↓
+AreaManager
+↓
+SeoulAPI
+↓
+UrbanData
+↓
+DataAnalyzer
+↓
+결과 출력
 
-#### Methods
+## 프로젝트 구조
 
-- run()
-- initialize()
+```text
+Seoul-Real-Time-Urban-Data/
+│
+├── src/
+│   ├── main.py
+│   ├── seoul_api.py
+│   ├── urban_data.py
+│   ├── area_manager.py
+│   ├── data_analyzer.py
+│   └── location_selector.py
+│
+├── docs/
+│   ├── proposal.pdf
+│   └── presentation.pdf
+│
+├── LICENSE
+├── README.md
+└── requirements.txt
+```
 
----
+## 클래스 다이어그램
 
-## System Flow
+```mermaid
+classDiagram
 
-1. The user selects a district.
-2. MainApp receives the request.
-3. TrafficAPI retrieves traffic information.
-4. TrafficData stores and manages the data.
-5. MapManager visualizes the information on the map.
-6. The result is displayed to the user.
+class MainApp
+class LocationSelector
+class AreaManager
+class SeoulAPI
+class UrbanData
+class DataAnalyzer
 
----
+MainApp --> LocationSelector
+MainApp --> AreaManager
+MainApp --> SeoulAPI
+MainApp --> UrbanData
+MainApp --> DataAnalyzer
 
-## Object-Oriented Programming Concepts
+SeoulAPI --> UrbanData
+DataAnalyzer --> UrbanData
+```
 
-### Encapsulation
+## 팀원 역할
 
-Each class manages its own data and functionality.
-
-### Abstraction
-
-Complex traffic data processing is hidden behind simple methods.
-
-### Modularity
-
-The system is divided into independent classes with specific responsibilities.
-
-### Reusability
-
-Classes can be reused and extended in future versions.
-
----
-
-## Expected Outcome
-
-- Interactive traffic visualization system
-- District-based traffic information display
-- Practical application of OOP concepts
-- Foundation for future real-time traffic monitoring systems
-
----
-
-## Development Plan
-
-### Phase 1
-- Create project structure
-- Design classes
-- Set up GitHub repository
-
-### Phase 2
-- Implement TrafficData and TrafficAPI
-- Develop data processing functions
-
-### Phase 3
-- Implement MapManager and User interaction
-- Integrate all classes
-
-### Phase 4
-- Testing and bug fixing
-- Final presentation preparation
-
----
-
-## GitHub Repository
-
-https://github.com/Ginaeyo/seoul-traffic-viewer
-
----
+| 역할 | 담당 업무 |
+|------|-----------|
+| 팀장 | 프로젝트 관리, 문서 작성 |
+| 팀원 1 | API 연동 |
+| 팀원 2 | 데이터 처리 |
+| 팀원 3 | UI 및 출력 |
+| 팀원 4 | 테스트 및 GitHub 관리 |
 
 ## License
-This project was developed for the Object-Oriented Programming Team Project at Kwangwoon University.
+
+본 프로젝트는 MIT License를 따릅니다.
+
+자세한 내용은 LICENSE 파일을 참고하세요.
