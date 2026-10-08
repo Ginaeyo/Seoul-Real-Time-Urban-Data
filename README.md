@@ -64,6 +64,9 @@ Dashboard
 
 ## 프로젝트 구조
 
+## 프로젝트 구조
+
+```text
 Seoul-Real-Time-Urban-Data/
 │
 ├── src/
@@ -78,12 +81,12 @@ Seoul-Real-Time-Urban-Data/
 │
 ├── docs/
 │   ├── Seoul_Real_Time_Urban_Data_Proposal.docx
-│   └── presentation.pdf
 │
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
 └── .gitignore
+```
 
 ## 클래스 다이어그램
 
