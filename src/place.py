@@ -5,8 +5,8 @@ class Place:
 
     def get_info(self):
         return {
-            "area_name": self.area_name,
-            "area_code": self.area_code
+            "name": self.area_name,
+            "code": self.area_code
         }
 
     def __str__(self):
