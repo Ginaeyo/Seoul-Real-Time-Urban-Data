@@ -79,21 +79,43 @@ Seoul-Real-Time-Urban-Data/
 ```mermaid
 classDiagram
 
-class MainApp
-class LocationSelector
-class AreaManager
-class SeoulAPI
-class UrbanData
-class DataAnalyzer
+class MainApp {
+    +run()
+}
 
-MainApp --> LocationSelector
-MainApp --> AreaManager
-MainApp --> SeoulAPI
-MainApp --> UrbanData
-MainApp --> DataAnalyzer
+class LocationSelector {
+    +select_location()
+}
 
-SeoulAPI --> UrbanData
-DataAnalyzer --> UrbanData
+class AreaManager {
+    -areas : list
+    +show_areas()
+    +get_area(index)
+}
+
+class SeoulAPI {
+    +get_data(area_name)
+}
+
+class UrbanData {
+    +area_name
+    +congestion
+    +weather
+    +display_info()
+}
+
+class DataAnalyzer {
+    +analyze_congestion(congestion)
+}
+
+MainApp --> LocationSelector : uses
+MainApp --> AreaManager : uses
+MainApp --> SeoulAPI : uses
+MainApp --> DataAnalyzer : uses
+
+LocationSelector --> AreaManager : selects area
+SeoulAPI --> UrbanData : creates
+DataAnalyzer --> UrbanData : analyzes
 ```
 
 ## 팀원 역할
