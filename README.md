@@ -18,6 +18,9 @@
 
 ## 클래스 구조
 
+### Place
+선택한 지역의 이름, 코드 등 변하지 않는 기본 정보를 저장합니다.
+
 ### UrbanData
 선택한 지역의 실시간 데이터를 저장합니다.
 
@@ -33,6 +36,9 @@ API 데이터를 분석하여 사용자가 이해하기 쉬운 형태로 변환�
 ### LocationSelector
 사용자의 지역 선택을 처리합니다.
 
+### Dashboard
+분석된 데이터를 사용자에게 출력합니다.
+
 ### MainApp
 프로그램 전체 흐름을 관리하고 각 클래스를 연결합니다.
 
@@ -44,78 +50,90 @@ LocationSelector
 ↓
 AreaManager
 ↓
+Place
+↓
 SeoulAPI
 ↓
 UrbanData
 ↓
 DataAnalyzer
 ↓
+Dashboard
+↓
 결과 출력
 
 ## 프로젝트 구조
 
-```text
 Seoul-Real-Time-Urban-Data/
 │
 ├── src/
 │   ├── main.py
 │   ├── seoul_api.py
 │   ├── urban_data.py
+│   ├── place.py
 │   ├── area_manager.py
 │   ├── data_analyzer.py
-│   └── location_selector.py
+│   ├── location_selector.py
+│   └── dashboard.py
 │
 ├── docs/
-│   ├── proposal.pdf
+│   ├── Seoul_Real_Time_Urban_Data_Proposal.docx
 │   └── presentation.pdf
 │
 ├── LICENSE
 ├── README.md
-└── requirements.txt
-```
+├── requirements.txt
+└── .gitignore
 
 ## 클래스 다이어그램
 
 ```mermaid
 classDiagram
 
-class MainApp {
+class MainApp{
     +run()
 }
 
-class LocationSelector {
+class LocationSelector{
     +select_location()
 }
 
-class AreaManager {
-    -areas : list
-    +show_areas()
-    +get_area(index)
+class AreaManager{
+    +get_area()
 }
 
-class SeoulAPI {
-    +get_data(area_name)
-}
-
-class UrbanData {
+class Place{
     +area_name
+    +area_code
+}
+
+class SeoulAPI{
+    +get_data()
+}
+
+class UrbanData{
     +congestion
     +weather
-    +display_info()
 }
 
-class DataAnalyzer {
-    +analyze_congestion(congestion)
+class DataAnalyzer{
+    +analyze_data()
 }
 
-MainApp --> LocationSelector : uses
-MainApp --> AreaManager : uses
-MainApp --> SeoulAPI : uses
-MainApp --> DataAnalyzer : uses
+class Dashboard{
+    +display()
+}
 
-LocationSelector --> AreaManager : selects area
-SeoulAPI --> UrbanData : creates
-DataAnalyzer --> UrbanData : analyzes
+MainApp --> LocationSelector
+MainApp --> AreaManager
+MainApp --> SeoulAPI
+MainApp --> DataAnalyzer
+MainApp --> Dashboard
+
+AreaManager --> Place
+SeoulAPI --> UrbanData
+DataAnalyzer --> UrbanData
+Dashboard --> UrbanData
 ```
 
 ## 역할 분담
