@@ -2,6 +2,7 @@ from area_manager import AreaManager
 from location_selector import LocationSelector
 from seoul_api import SeoulAPI
 from data_analyzer import DataAnalyzer
+from dashboard import Dashboard
 
 
 class MainApp:
@@ -11,6 +12,7 @@ class MainApp:
         self.location_selector = LocationSelector()
         self.api = SeoulAPI()
         self.analyzer = DataAnalyzer()
+        self.dashboard = Dashboard()
 
     def run(self):
 
@@ -28,7 +30,7 @@ class MainApp:
 
         urban_data = self.api.get_data(area)
 
-        urban_data.display_info()
+        self.dashboard.display(area, urban_data)
 
         result = self.analyzer.analyze_congestion(
             urban_data.congestion
