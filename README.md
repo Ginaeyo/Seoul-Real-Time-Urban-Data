@@ -2,156 +2,115 @@
 
 ## 프로젝트 소개
 
-본 프로젝트는 서울시 실시간 도시데이터 API를 활용하여 사용자가 서울의 특정 지역을 선택하면 해당 지역의 실시간 정보를 확인할 수 있는 프로그램입니다.
+서울 실시간 도시데이터 프로젝트는 서울시 실시간 도시데이터 API를 활용하여 사용자가 선택한 지역의 실시간 도시 정보를 확인할 수 있는 객체지향 프로그래밍(OOP) 팀 프로젝트입니다.
 
-사용자는 강남역, 홍대입구, 잠실 등 서울의 주요 지역을 선택할 수 있으며, 선택한 지역의 혼잡도 및 날씨 정보를 확인할 수 있습니다.
+사용자는 서울의 특정 지역을 선택하거나 검색하여 다음 정보를 확인할 수 있습니다.
 
-본 프로젝트는 객체지향 프로그래밍(OOP)의 개념을 적용하여 실제 공공데이터를 활용하는 것을 목표로 합니다.
+- 실시간 인구 현황 및 혼잡도
+- 날씨 정보
+- 교통 상황
+
+본 프로젝트는 데이터 수집, 관리, 분석 및 출력 기능을 클래스별로 분리하여 구현합니다.
 
 ## 주요 기능
 
-- 서울 지역 선택
-- 실시간 인구 혼잡도 확인
-- 실시간 날씨 정보 확인
-- 사용자 친화적인 형태로 데이터 제공
-- 객체지향 프로그래밍 구조 적용
+- 서울 지역 검색 및 선택
+- 실시간 인구 현황 및 혼잡도 확인
+- 선택한 지역의 날씨 정보 확인
+- 선택한 지역의 교통 상황 확인
+- API 데이터 수집 및 가공
+- 객체지향 프로그래밍을 활용한 클래스별 기능 분리
+
+## 사용 데이터
+
+- 기본 데이터: 서울 실시간 도시데이터
+- 데이터 수집: 서울시 실시간 도시데이터 API
+- 주요 정보: 인구 현황, 날씨, 교통 상황
 
 ## 클래스 구조
 
-### Place
-선택한 지역의 이름, 코드 등 변하지 않는 기본 정보를 저장합니다.
-
-### UrbanData
-선택한 지역의 실시간 데이터를 저장합니다.
-
-### SeoulAPI
-서울시 실시간 도시데이터 API에 요청을 보내고 데이터를 가져옵니다.
-
-### AreaManager
-지원하는 지역 목록을 관리하고 지역 검색 기능을 제공합니다.
-
-### DataAnalyzer
-API 데이터를 분석하여 사용자가 이해하기 쉬운 형태로 변환합니다.
-
-### LocationSelector
-사용자의 지역 선택을 처리합니다.
-
-### Dashboard
-분석된 데이터를 사용자에게 출력합니다.
-
-### MainApp
-프로그램 전체 흐름을 관리하고 각 클래스를 연결합니다.
+| 클래스 | 주요 책임 |
+|---|---|
+| MainApp | 전체 프로그램 흐름 제어 및 클래스 연결 |
+| LocationSelector | 사용자 검색어 입력 및 지역 선택 |
+| AreaManager | 지역 목록 관리 및 검색 결과 조회 |
+| Place | 지역명, 지역 코드 등 기본 정보 저장 |
+| SeoulAPI | API 요청 및 데이터 수신 |
+| UrbanData | 실시간 인구, 날씨 및 교통 데이터 저장 |
+| DataAnalyzer | 수집한 데이터 가공 및 분석 |
+| Dashboard | 가공된 데이터를 사용자에게 출력 |
 
 ## 프로그램 동작 흐름
 
-User
-↓
-LocationSelector
-↓
-AreaManager
-↓
-Place
-↓
-SeoulAPI
-↓
-UrbanData
-↓
-DataAnalyzer
-↓
-Dashboard
-↓
-결과 출력
-
-## 프로젝트 구조
+1. 사용자가 지역을 검색하고 선택합니다.
+2. AreaManager가 해당 지역 정보를 확인합니다.
+3. Place가 지역명과 지역 코드 등 기본 정보를 제공합니다.
+4. SeoulAPI가 서울시 실시간 도시데이터 API에 요청합니다.
+5. UrbanData가 수신한 데이터를 저장합니다.
+6. DataAnalyzer가 인구, 날씨 및 교통 데이터를 가공합니다.
+7. Dashboard가 가공된 정보를 사용자에게 출력합니다.
 
 ## 프로젝트 구조
 
 ```text
 Seoul-Real-Time-Urban-Data/
-│
 ├── src/
 │   ├── main.py
 │   ├── seoul_api.py
 │   ├── urban_data.py
 │   ├── place.py
 │   ├── area_manager.py
-│   ├── data_analyzer.py
 │   ├── location_selector.py
-│   └── dashboard.py
-│
+│   └── data_analyzer.py
 ├── docs/
-│   ├── Seoul_Real_Time_Urban_Data_Proposal.docx
-│
-├── LICENSE
+│   └── Seoul_Real_Time_Urban_Data_Proposal.docx
+├── images/
+├── .gitignore
+├── License
 ├── README.md
-├── requirements.txt
-└── .gitignore
+└── requirements.txt
 ```
 
-## 클래스 다이어그램
+실제 파일 구성은 개발 진행 상황에 따라 변경될 수 있습니다.
 
-```mermaid
-classDiagram
+## 실행 방법
 
-class MainApp{
-    +run()
-}
+현재 콘솔 프로그램으로 구현할 예정입니다.
 
-class LocationSelector{
-    +select_location()
-}
+1. Python을 설치합니다.
+2. 저장소를 다운로드하거나 복제합니다.
+3. 필요한 라이브러리를 설치합니다.
 
-class AreaManager{
-    +get_area()
-}
-
-class Place{
-    +area_name
-    +area_code
-}
-
-class SeoulAPI{
-    +get_data()
-}
-
-class UrbanData{
-    +congestion
-    +weather
-}
-
-class DataAnalyzer{
-    +analyze_data()
-}
-
-class Dashboard{
-    +display()
-}
-
-MainApp --> LocationSelector
-MainApp --> AreaManager
-MainApp --> SeoulAPI
-MainApp --> DataAnalyzer
-MainApp --> Dashboard
-
-AreaManager --> Place
-SeoulAPI --> UrbanData
-DataAnalyzer --> UrbanData
-Dashboard --> UrbanData
+```bash
+pip install -r requirements.txt
 ```
 
-## 역할 분담
+4. `src/main.py`를 실행합니다.
 
-| 역할 | 담당 업무 |
-|------|-----------|
-| 팀장 | 프로젝트 관리, 일정 조율, 문서 작성, 최종 검토 |
-| 팀원 1 | API 연동 |
-| 팀원 2 | 데이터 처리 및 클래스 구현 |
-| 팀원 3 | UI 및 출력 화면 |
-| 팀원 4 | GitHub 관리 및 테스트 |
-| 전원 | 발표 준비 및 PPT 내용 검토 |
+```bash
+python src/main.py
+```
+
+API 연결 및 프로그램 구현이 완료되면 실행 방법을 업데이트합니다.
+
+## 팀원 역할 분담
+
+| 팀원 | 담당 클래스 및 업무 |
+|---|---|
+| 에르덴자야 (Ginaeyo) | 팀장, 프로젝트 관리, 일정 조율, GitHub 관리, 문서 작성 및 최종 검토 |
+| 할리오나 (Liuka0715) | SeoulAPI, API 연동 및 실시간 데이터 수집 |
+| 민경환 (Kimmolang11) | Place, UrbanData, MainApp, 데이터 구조 설계 및 프로그램 흐름 통합 |
+| 원미혜 (Today0505) | Dashboard, 사용자 인터페이스 및 결과 출력 |
+| 김효중 (a01056405156-ctrl) | AreaManager, LocationSelector, DataAnalyzer, 지역 관리 및 데이터 분석 |
+
+모든 팀원은 통합 테스트, 오류 수정 및 발표 준비에 참여합니다.
+
+## 개발 환경
+
+- Language: Python
+- Data Source: Seoul Real-Time Urban Data API
+- Version Control: GitHub
 
 ## License
 
-본 프로젝트는 MIT License를 따릅니다.
-
-자세한 내용은 LICENSE 파일을 참고하세요.
+본 프로젝트는 MIT License를 따릅니다. 자세한 내용은 License 파일을 참고하세요.
