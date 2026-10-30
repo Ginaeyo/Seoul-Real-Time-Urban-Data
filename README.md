@@ -194,3 +194,8 @@ python src/main.py
 ## 12. License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
+## 팀 개발 안내
+
+저장소 복제, 브랜치 생성, commit/push, Pull Request 방법은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.

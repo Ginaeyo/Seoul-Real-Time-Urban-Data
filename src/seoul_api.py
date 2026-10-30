@@ -1,8 +1,19 @@
+<<<<<<< Updated upstream
 
 import os
 import requests
 from urllib.parse import quote
 
+=======
+"""서울 실시간 도시데이터 API 요청과 응답 변환을 담당하는 모듈.
+
+TODO(담당: 할리오나 / 데이터 모델 협의: 민경환)
+- get_data(place)는 확인된 area_code로 API를 요청하고 UrbanData를 반환한다.
+- 요청 timeout, HTTP 오류, JSON 파싱 오류와 필수 데이터 누락을 처리한다.
+- API 키는 환경 변수에서 읽고 코드에 직접 저장하지 않는다.
+- API 연결 없이도 가짜 샘플 데이터로 테스트할 수 있게 한다.
+"""
+>>>>>>> Stashed changes
 from urban_data import UrbanData
 
 

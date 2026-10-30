@@ -1,3 +1,10 @@
+"""선택 지역과 실시간 도시 정보를 콘솔에 표시하는 모듈.
+
+TODO(담당: 원미혜 / 데이터 필드 협의: 민경환)
+- display(place, urban_data)에서 지역명, 혼잡도, 날씨와 사용 가능한 정보를 정리해 출력한다.
+- 값이 None이거나 응답에 없는 항목은 오류 없이 '정보 없음'으로 표시한다.
+- API 요청이나 데이터 분석은 이 모듈에서 수행하지 않는다.
+"""
 
 class Dashboard:
     """Display Seoul real-time urban data."""
