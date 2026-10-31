@@ -13,20 +13,23 @@ from dashboard import Dashboard
 
 
 class MainApp:
+    """지역 선택 → 데이터 조회 → 대시보드 출력 → 혼잡도 분석 결과 출력 순서로 실행한다."""
 
     def __init__(self):
-        self.area_manager = AreaManager()
-        self.location_selector = LocationSelector()
-        self.api = SeoulAPI()
-        self.analyzer = DataAnalyzer()
-        self.dashboard = Dashboard()
+        self.area_manager = AreaManager()            # 지원 지역 목록 관리
+        self.location_selector = LocationSelector()  # 사용자 입력으로 지역 선택
+        self.api = SeoulAPI()                        # 도시 데이터 조회
+        self.analyzer = DataAnalyzer()               # 혼잡도 설명 생성
+        self.dashboard = Dashboard()                 # 결과 출력
 
     def run(self):
+        """전체 흐름을 실행한다. 문제가 생기면 안내 메시지만 출력하고 끝낸다."""
 
         print("=================================")
         print("Seoul Real-Time Urban Data")
         print("=================================")
 
+        # 1) 지역 선택 (잘못된 입력이면 None)
         area = self.location_selector.select_location(
             self.area_manager
         )
@@ -35,10 +38,17 @@ class MainApp:
             print("잘못된 입력입니다.")
             return
 
+        # 2) 데이터 조회 (API 오류나 데이터 없음이면 None)
         urban_data = self.api.get_data(area)
 
+        if urban_data is None:
+            print("도시 데이터를 가져오지 못했습니다.")
+            return
+
+        # 3) 지역과 도시 정보 출력
         self.dashboard.display(area, urban_data)
 
+        # 4) 혼잡도 분석 결과 출력
         result = self.analyzer.analyze_congestion(
             urban_data.congestion
         )
