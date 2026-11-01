@@ -2,11 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # Virtual environment
 venv/
 .venv/
-env/# VS / VS Code
+env/
+
+# VS / VS Code
 .vs/
 .vscode/
 
