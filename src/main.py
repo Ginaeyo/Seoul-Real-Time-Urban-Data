@@ -37,6 +37,10 @@ class MainApp:
 
         urban_data = self.api.get_data(area)
 
+        if urban_data is None:
+            print("도시 데이터를 가져오지 못했습니다. API 키와 네트워크 연결을 확인해 주세요.")
+            return
+
         self.dashboard.display(area, urban_data)
 
         result = self.analyzer.analyze_congestion(
