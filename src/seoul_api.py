@@ -1,17 +1,11 @@
+"""서울 실시간 도시데이터 API 요청과 응답 변환을 담당하는 모듈."""
 
 import os
-import requests
 from urllib.parse import quote
+
+import requests
+
 from urban_data import UrbanData
-
-"""서울 실시간 도시데이터 API 요청과 응답 변환을 담당하는 모듈.
-
-TODO(담당: 할리오나 / 데이터 모델 협의: 민경환)
-- get_data(place)는 확인된 area_code로 API를 요청하고 UrbanData를 반환한다.
-- 요청 timeout, HTTP 오류, JSON 파싱 오류와 필수 데이터 누락을 처리한다.
-- API 키는 환경 변수에서 읽고 코드에 직접 저장하지 않는다.
-- API 연결 없이도 가짜 샘플 데이터로 테스트할 수 있게 한다.
-"""
 
 
 class SeoulAPI:
@@ -20,10 +14,25 @@ class SeoulAPI:
     def __init__(self, api_key=None):
         self.api_key = api_key or os.getenv("SEOUL_API_KEY")
 
-    def get_data(self, area_name):
+    def sample_data(self, area_name):
+        """API 연결이 없을 때 사용하는 예시 데이터."""
+        print("샘플 데이터를 사용합니다.")
+        return UrbanData(
+            area_name=area_name,
+            congestion="보통 (샘플)",
+            weather="정보 없음",
+        )
+
+    def get_data(self, place):
+        """Place 객체를 받아 UrbanData 객체를 반환합니다."""
+        area_name = getattr(place, "area_name", None)
+
+        if not area_name:
+            area_name = str(place)
+
         if not self.api_key:
-            print("API 인증키가 없습니다.")
-            return None
+            print("API 키가 없어 샘플 모드로 실행합니다.")
+            return self.sample_data(area_name)
 
         area = quote(area_name, safe="")
         url = (
@@ -36,42 +45,53 @@ class SeoulAPI:
             response.raise_for_status()
             result = response.json()
 
+            if not isinstance(result, dict):
+                print("API 응답 형식이 올바르지 않습니다.")
+                return self.sample_data(area_name)
+
             if "RESULT" in result:
-                print("API 오류:", result["RESULT"].get("MESSAGE"))
-                return None
+                print("API 오류:", result["RESULT"])
+                return self.sample_data(area_name)
 
             city_data = result.get("CITYDATA", {})
-            if not city_data:
+
+            if isinstance(city_data, list):
+                city_data = city_data[0] if city_data else {}
+
+            if not isinstance(city_data, dict) or not city_data:
                 print("도시 데이터를 찾을 수 없습니다.")
-                return None
+                return self.sample_data(area_name)
 
             population = city_data.get("LIVE_PPLTN_STTS", [])
-            weather = city_data.get("WEATHER_STTS", [])
+            weather_data = city_data.get("WEATHER_STTS", [])
 
             if isinstance(population, list):
                 population = population[0] if population else {}
 
-            if isinstance(weather, list):
-                weather = weather[0] if weather else {}
+            if isinstance(weather_data, list):
+                weather_data = weather_data[0] if weather_data else {}
 
             congestion = (
-                population.get("AREA_CONGEST_LVL", "정보 없음")
+                population.get("AREA_CONGEST_LVL")
                 if isinstance(population, dict)
-                else "정보 없음"
+                else None
             )
-
             temperature = (
-                weather.get("TEMP", "정보 없음")
-                if isinstance(weather, dict)
-                else "정보 없음"
+                weather_data.get("TEMP")
+                if isinstance(weather_data, dict)
+                else None
             )
 
             return UrbanData(
-                area_name,
-                congestion,
-                temperature
+                area_name=area_name,
+                congestion=congestion or "정보 없음",
+                weather=(
+                    f"{temperature}°C"
+                    if temperature is not None
+                    else "정보 없음"
+                ),
             )
 
         except (requests.RequestException, ValueError) as error:
             print(f"API 요청 실패: {error}")
-            return None
+            return self.sample_data(area_name)
