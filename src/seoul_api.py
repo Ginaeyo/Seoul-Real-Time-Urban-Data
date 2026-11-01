@@ -1,4 +1,5 @@
-"""서울 실시간 도시데이터 API 요청과 응답 변환을 담당하는 모듈."""
+
+"""서울 실시간 도시데이터 API 연동 모듈."""
 
 import os
 from urllib.parse import quote
@@ -20,7 +21,7 @@ class SeoulAPI:
         return UrbanData(
             area_name=area_name,
             congestion="보통 (샘플)",
-            weather="정보 없음",
+            weather="정보 없음"
         )
 
     def get_data(self, place):
@@ -34,6 +35,7 @@ class SeoulAPI:
             print("API 키가 없어 샘플 모드로 실행합니다.")
             return self.sample_data(area_name)
 
+        # 실제 API에서 확인된 지역명을 사용합니다.
         area = quote(area_name, safe="")
         url = (
             f"{self.BASE_URL}/{self.api_key}/json/"
@@ -49,8 +51,9 @@ class SeoulAPI:
                 print("API 응답 형식이 올바르지 않습니다.")
                 return self.sample_data(area_name)
 
-            if "RESULT" in result:
-                print("API 오류:", result["RESULT"])
+            if "RESULT" in result and result["RESULT"].get("RESULT.CODE") != "INFO-000":
+                message = result["RESULT"]
+                print("API 오류:", message)
                 return self.sample_data(area_name)
 
             city_data = result.get("CITYDATA", {})
@@ -76,6 +79,7 @@ class SeoulAPI:
                 if isinstance(population, dict)
                 else None
             )
+
             temperature = (
                 weather_data.get("TEMP")
                 if isinstance(weather_data, dict)
@@ -89,7 +93,7 @@ class SeoulAPI:
                     f"{temperature}°C"
                     if temperature is not None
                     else "정보 없음"
-                ),
+                )
             )
 
         except (requests.RequestException, ValueError) as error:
