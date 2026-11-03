@@ -8,11 +8,9 @@ __pycache__/
 venv/
 .venv/
 env/
-
 # VS / VS Code
 .vs/
 .vscode/
-
 # Python
 __pycache__/
 *.pyc
