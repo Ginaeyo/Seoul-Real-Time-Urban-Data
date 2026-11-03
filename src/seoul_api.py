@@ -49,9 +49,11 @@ class SeoulAPI:
                 print("API 응답 형식이 올바르지 않습니다.")
                 return self.sample_data(area_name)
 
-            if "RESULT" in result:
-                print("API 오류:", result["RESULT"])
+            if "RESULT" in result and result["RESULT"].get("RESULT.CODE") != "INFO-000":
+                message = result["RESULT"]
+                print("API 오류:", message)
                 return self.sample_data(area_name)
+        
 
             city_data = result.get("CITYDATA", {})
 
