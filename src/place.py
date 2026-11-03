@@ -6,7 +6,7 @@ TODO(담당: 민경환 / 지역 목록 협의: 김효중, 할리오나)
 - 확인되지 않은 API 코드를 임의로 만들지 않는다.
 """
 class Place:
-    def __init__(self, area_name, area_code):
+    def __init__(self, area_name, area_code=None):
         self.area_name = area_name
         self.area_code = area_code
 
@@ -17,4 +17,4 @@ class Place:
         }
 
     def __str__(self):
-        return f"{self.area_name} ({self.area_code})"
+        return f"{self.area_name} ({self.area_code or '코드 없음'})"
