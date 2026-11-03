@@ -31,3 +31,28 @@ def test_area_codes_are_not_invented():
 
     for area in manager.areas:
         assert area.area_code is None
+def test_get_areas_returns_all_places():
+    manager = AreaManager()
+
+    result = manager.get_areas()
+
+    assert len(result) == 5
+    assert all(isinstance(area, Place) for area in result)
+
+
+def test_search_areas_by_name():
+    manager = AreaManager()
+
+    result = manager.search_areas("강남")
+
+    assert len(result) == 1
+    assert result[0].area_name == "강남역"
+
+
+def test_get_area_by_name():
+    manager = AreaManager()
+
+    result = manager.get_area("홍대입구")
+
+    assert isinstance(result, Place)
+    assert result.area_name == "홍대입구"

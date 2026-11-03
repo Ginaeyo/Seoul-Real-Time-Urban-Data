@@ -9,6 +9,7 @@ from place import Place
 
 
 class AreaManager:
+
     def __init__(self):
         self.areas = [
             Place("강남역"),
@@ -18,14 +19,43 @@ class AreaManager:
             Place("서울역")
         ]
 
+    def get_areas(self):
+        """전체 지역 목록 반환"""
+        return list(self.areas)
+
+    def search_areas(self, search_keyword):
+        """지역명으로 검색"""
+        keyword = str(search_keyword).strip().casefold()
+
+        if not keyword:
+            return self.get_areas()
+
+        return [
+            area for area in self.areas
+            if keyword in area.area_name.casefold()
+        ]
+
     def show_areas(self):
         print("\n=== 지역 목록 ===")
 
         for i, area in enumerate(self.areas, start=1):
             print(f"{i}. {area.area_name}")
 
-    def get_area(self, index):
-        if isinstance(index, int) and 1 <= index <= len(self.areas):
-            return self.areas[index - 1]
+    def get_area(self, area_identifier):
+
+        if isinstance(area_identifier, int) and not isinstance(area_identifier, bool):
+            if 1 <= area_identifier <= len(self.areas):
+                return self.areas[area_identifier - 1]
+            return None
+
+        if isinstance(area_identifier, str):
+            value = area_identifier.strip()
+
+            for area in self.areas:
+                if area.area_name == value:
+                    return area
+
+                if area.area_code is not None and str(area.area_code) == value:
+                    return area
 
         return None

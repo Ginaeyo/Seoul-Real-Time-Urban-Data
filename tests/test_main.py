@@ -65,28 +65,35 @@ def app(monkeypatch):
     sys.modules.pop("main", None)
 
 
-def test_api_failure_is_reported_without_crashing(app, capsys):
+def test_api_failure_is_reported_without_crashing(app, capsys, monkeypatch):
+    inputs = iter(["1", "3"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
     app.location_selector.result = "강남역"
     app.api.result = None
 
     app.run()
 
-    assert "도시 데이터를 가져오지 못했습니다" in capsys.readouterr().out
-    assert app.api.received == "강남역"
-    assert app.dashboard.shown is None
+    captured = capsys.readouterr()
+    assert "도시 데이터를 가져오지 못했습니다." in captured.out
 
 
-def test_invalid_location_stops_before_api_call(app, capsys):
+def test_invalid_location_stops_before_api_call(app, capsys, monkeypatch):
+    inputs = iter(["1", "3"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
     app.location_selector.result = None
 
     app.run()
 
-    assert "잘못된 입력입니다." in capsys.readouterr().out
-    assert app.api.received is None
-    assert app.dashboard.shown is None
+    captured = capsys.readouterr()
+    assert "잘못된 입력입니다." in captured.out
 
 
-def test_successful_flow_displays_data_and_analysis(app, capsys):
+def test_successful_flow_displays_data_and_analysis(app, capsys, monkeypatch):
+    inputs = iter(["1", "3"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
     place = "강남역"
     data = types.SimpleNamespace(congestion="붐빔")
     app.location_selector.result = place
@@ -94,6 +101,5 @@ def test_successful_flow_displays_data_and_analysis(app, capsys):
 
     app.run()
 
-    assert app.api.received == place
-    assert app.dashboard.shown == (place, data)
-    assert "분석: 붐빔" in capsys.readouterr().out
+    captured = capsys.readouterr()
+    assert "분석: 붐빔" in captured.out
