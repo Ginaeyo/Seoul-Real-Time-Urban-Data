@@ -20,6 +20,8 @@ class MainApp:
         self.api = SeoulAPI()
         self.analyzer = DataAnalyzer()
         self.dashboard = Dashboard()
+        # 마지막으로 조회한 지역 (새로고침에 사용, 없으면 None)
+        self.current_area = None
 
     def run(self):
         print("=================================")
@@ -31,6 +33,7 @@ class MainApp:
             print("1. 지역 실시간 정보 조회")
             print("2. 두 지역 혼잡도 비교")
             print("3. 종료")
+            print("4. 마지막 지역 새로고침")
 
             choice = input("\n메뉴를 선택하세요: ").strip()
 
@@ -44,31 +47,53 @@ class MainApp:
                 print("프로그램을 종료합니다.")
                 break
 
-            else:
-                print("1, 2, 3 중에서 선택해주세요.")
+            elif choice == "4":
+                self.refresh_data()
 
-    def show_area_info(self):
+            else:
+                print("1, 2, 3, 4 중에서 선택해주세요.")
+
+    def load_area(self):
+        """지역을 선택받아 current_area에 저장하고 반환한다.
+
+        잘못된 입력이면 안내 문구를 출력하고 None을 반환한다.
+        """
         area = self.location_selector.select_location(
             self.area_manager
         )
 
         if area is None:
             print("잘못된 입력입니다.")
+            return None
+
+        self.current_area = area
+        return area
+
+    def refresh_data(self):
+        """current_area의 데이터를 다시 조회해 대시보드와 분석 결과를 출력한다."""
+        if self.current_area is None:
+            print("먼저 1번 메뉴에서 지역을 조회해주세요.")
             return
 
-        urban_data = self.api.get_data(area)
+        urban_data = self.api.get_data(self.current_area)
 
         if urban_data is None:
             print("도시 데이터를 가져오지 못했습니다.")
             return
 
-        self.dashboard.display(area, urban_data)
+        self.dashboard.display(self.current_area, urban_data)
 
         result = self.analyzer.analyze_congestion(
             urban_data.congestion
         )
 
         print(result)
+
+    def show_area_info(self):
+        if self.load_area() is None:
+            return
+
+        self.refresh_data()
 
     def compare_areas(self):
         selected_areas = self.location_selector.select_comparison_areas(
