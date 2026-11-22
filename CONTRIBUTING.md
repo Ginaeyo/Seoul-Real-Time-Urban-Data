@@ -30,7 +30,7 @@ cd "Seoul-Real-Time-Urban-Data"
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\run.cmd
+.\.venv\Scripts\python.exe src\main.py
 ```
 
 `src\main.py` 실행 결과가 나오면 기본 환경이 준비된 것입니다. API 키나 네트워크가 준비되지 않은 경우 팀에서 제공한 샘플 데이터로 작업합니다.
@@ -46,11 +46,13 @@ git pull origin main
 
 ### 최종 시연 버전 검토하기
 
-최종 시연용 브랜치를 내려받아 실행해 볼 수 있습니다. 아래 두 번째 명령은 이 브랜치를 처음 내려받을 때 사용합니다. 이미 로컬에 브랜치가 있다면 `git switch review/final-demo`로 이동합니다.
+최종 시연 버전만 확인하려면 저장소를 내려받은 뒤 아래 명령을 실행합니다. 브랜치를 바꾼 다음 해당 버전의 라이브러리를 설치합니다. 아래 두 번째 명령은 이 브랜치를 처음 내려받을 때 사용합니다. 이미 로컬에 브랜치가 있다면 `git switch review/final-demo`로 이동합니다.
 
 ```powershell
 git fetch origin
 git switch --track origin/review/final-demo
+if (!(Test-Path .venv\Scripts\python.exe)) { py -m venv .venv }
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\run.cmd
 ```
 

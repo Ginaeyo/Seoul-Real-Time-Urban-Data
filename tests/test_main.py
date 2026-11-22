@@ -154,7 +154,10 @@ def test_menu_three_displays_all_area_dashboard(app, capsys, monkeypatch):
     app.run()
 
     assert chart_rows == [(area, data) for area in areas]
-    assert "전체 대시보드 저장 위치: full_dashboard.png" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "(1/2) 강남역 조회 중..." in output
+    assert "(2/2) 서울역 조회 중..." in output
+    assert "전체 대시보드 저장 위치: full_dashboard.png" in output
 
 
 def test_mixed_sources_display_both_areas_without_ranking(app, capsys, monkeypatch):

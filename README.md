@@ -60,9 +60,11 @@ classDiagram
     MainApp --> DataAnalyzer
     MainApp --> Dashboard
     LocationSelector ..> AreaManager : 검색
+    LocationSelector ..> Place : 선택 결과
     AreaManager --> "1..*" Place : 지원 지역
     SeoulAPI ..> Place : 조회 대상
     SeoulAPI ..> UrbanData : 생성
+    Dashboard ..> Place : 지역명 확인
     Dashboard ..> UrbanData : 출력
 ```
 

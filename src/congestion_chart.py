@@ -101,7 +101,7 @@ def plot_congestion_comparison(
     second_sample = is_sample_congestion(second_congestion)
     mixed_sources = first_sample != second_sample
     source_summary = "실시간·시연 혼합" if mixed_sources else ("시연 데이터" if first_sample else "실시간")
-    fig.text(0.045, 0.92, "서울 실시간 도시데이터  ·  " + source_summary,
+    fig.text(0.045, 0.92, "서울 도시데이터  ·  " + source_summary,
              color="#46516a", fontsize=13, fontweight="bold")
     fig.text(0.045, 0.82, "지역별 혼잡도 비교", color=ink, fontsize=31, fontweight="bold")
     fig.text(0.70, 0.835, "두 지역 혼잡도", color=ink, fontsize=20, fontweight="bold", ha="center")
@@ -193,15 +193,17 @@ def plot_area_dashboard(
     _configure_font(plt, font_manager)
     output = Path(output_path) if output_path else Path(__file__).resolve().parents[1] / "experiments" / "area_dashboard.png"
     output.parent.mkdir(parents=True, exist_ok=True)
+    sample_mode = is_sample_congestion(congestion)
     score, label = _normalize(congestion)
     value = parse_temperature(weather)
     temperature = f"{value:.1f}°C" if value is not None else "정보 없음"
     bg, ink, muted = "#fbf7ed", "#282b35", "#7e8085"
     palette = ["#86a88c", "#e4cb70", "#dc9867", "#be705e"]
     fig = plt.figure(figsize=(16, 9), dpi=PREVIEW_DPI, facecolor=bg)
-    fig.text(0.045, 0.92, "서울 실시간 도시데이터", color="#46516a", fontsize=13, fontweight="bold")
+    fig.text(0.045, 0.92, "서울 도시데이터", color="#46516a", fontsize=13, fontweight="bold")
     fig.text(0.045, 0.82, "대시보드 화면", color=ink, fontsize=31, fontweight="bold")
-    fig.text(0.95, 0.835, "단일 지역 실시간 현황", color=ink, fontsize=17, fontweight="bold", ha="right")
+    heading = "단일 지역 시연 데이터" if sample_mode else "단일 지역 실시간 현황"
+    fig.text(0.95, 0.835, heading, color=ink, fontsize=17, fontweight="bold", ha="right")
 
     def card(rect, edge="#ebe7df"):
         ax = fig.add_axes(rect)
@@ -222,7 +224,6 @@ def plot_area_dashboard(
     summary([0.045, 0.59, 0.245, 0.16], "조회 지역", "1개", area_name)
     summary([0.045, 0.38, 0.245, 0.16], "현재 혼잡도", label if score else "정보 없음",
             f"{score}/4단계" if score else "API 응답에 값이 없습니다")
-    sample_mode = is_sample_congestion(congestion)
     summary([0.045, 0.17, 0.245, 0.16], "시스템 안내",
             "시연 데이터" if sample_mode else "실시간 API",
             "혼잡도는 API 4단계로 표시합니다.", edge="#e3c78d")
@@ -303,8 +304,8 @@ def plot_full_dashboard(rows, output_path: str | Path | None = None, show: bool 
     elif sources == {True}:
         source_label = "시연 데이터"
     fig = plt.figure(figsize=(16, 9), dpi=PREVIEW_DPI, facecolor=bg)
-    fig.text(0.045, 0.94, "서울 실시간 도시데이터", color="#596274", fontsize=13, fontweight="bold")
-    fig.text(0.045, 0.855, "서울 실시간 도시데이터 대시보드", color=ink, fontsize=27, fontweight="bold")
+    fig.text(0.045, 0.94, "서울 도시데이터", color="#596274", fontsize=13, fontweight="bold")
+    fig.text(0.045, 0.855, "서울 도시데이터 대시보드", color=ink, fontsize=27, fontweight="bold")
     fig.text(0.95, 0.87, source_label,
              color="#907748", fontsize=11, fontweight="bold", ha="right",
              bbox={"boxstyle": "round,pad=0.45", "facecolor":"#eee5d3", "edgecolor":"none"})
@@ -357,5 +358,3 @@ def plot_full_dashboard(rows, output_path: str | Path | None = None, show: bool 
              color=muted, fontsize=9)
     _save_and_show(plt, fig, output, show)
     return output
-
-

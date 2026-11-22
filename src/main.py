@@ -25,10 +25,10 @@ class MainApp:
 
     def run(self):
         print("=" * 44)
-        print("서울 실시간 인구·날씨 대시보드")
+        print("서울 인구·날씨 대시보드")
         print("=" * 44)
         while True:
-            print("\n1. 지역 실시간 정보 조회")
+            print("\n1. 지역 정보 조회")
             print("2. 두 지역 혼잡도 비교 (그래프)")
             print("3. 전체 대시보드 보기 (그래프)")
             print("4. 종료")
@@ -66,7 +66,12 @@ class MainApp:
 
     def show_full_dashboard(self):
         rows = []
-        for area in self.area_manager.get_areas():
+        areas = self.area_manager.get_areas()
+        total = len(areas)
+        if total:
+            print(f"{total}개 지역을 조회합니다. 잠시만 기다려 주세요.", flush=True)
+        for number, area in enumerate(areas, start=1):
+            print(f"({number}/{total}) {area.area_name} 조회 중...", flush=True)
             data = self.api.get_data(area)
             if data is not None:
                 rows.append((area, data))

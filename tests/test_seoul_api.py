@@ -23,6 +23,9 @@ def test_api_without_key_returns_sample_data(monkeypatch):
     assert result.area_name == "강남역"
     assert result.congestion == "약간 붐빔 (샘플)"
     assert result.weather == "18.5°C"
+    second = api.get_data(Place("홍대입구역(2호선)"))
+    assert second.congestion == "붐빔 (샘플)"
+    assert second.weather == "16.3°C"
 
 
 def test_api_success_returns_real_data(monkeypatch):
@@ -115,6 +118,7 @@ def test_live_response_uses_nested_population_timestamp_and_preserves_zero(monke
 
     result = SeoulAPI(api_key=" test/key ").get_data(Place("강남역", "AREA_TEST"))
 
+    assert request.call_args.kwargs["timeout"] == (3, 5)
     assert request.call_args.args[0].endswith("/test%2Fkey/json/citydata/1/5/AREA_TEST")
     assert result.area_name == "강남역"
     assert result.congestion == "여유"

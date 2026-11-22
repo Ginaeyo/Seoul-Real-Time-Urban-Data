@@ -9,12 +9,22 @@ from urban_data import UrbanData
 class SeoulAPI:
     BASE_URL = "http://openapi.seoul.go.kr:8088"
 
+    SAMPLE_VALUES = {
+        "강남역": ("약간 붐빔", "18.5°C"),
+        "홍대입구역(2호선)": ("붐빔", "16.3°C"),
+        "잠실역": ("보통", "17.2°C"),
+        "명동 관광특구": ("약간 붐빔", "19.0°C"),
+        "서울역": ("여유", "15.8°C"),
+        "왕십리역": ("보통", "17.6°C"),
+    }
+
     def __init__(self, api_key=None):
         self.api_key = (api_key or os.getenv("SEOUL_API_KEY", "")).strip()
 
     def sample_data(self, area_name):
         print("샘플 데이터를 사용합니다.")
-        return UrbanData(area_name=area_name, congestion="약간 붐빔 (샘플)", weather="18.5°C")
+        congestion, weather = self.SAMPLE_VALUES.get(area_name, ("약간 붐빔", "18.5°C"))
+        return UrbanData(area_name=area_name, congestion=f"{congestion} (샘플)", weather=weather)
 
     def get_data(self, place):
         area_name = getattr(place, "area_name", None) or str(place)
@@ -26,7 +36,7 @@ class SeoulAPI:
         location = quote(str(area_identifier), safe="")
         url = f"{self.BASE_URL}/{key}/json/citydata/1/5/{location}"
         try:
-            response = requests.get(url, timeout=15)
+            response = requests.get(url, timeout=(3, 5))
             response.raise_for_status()
             result = response.json()
             if not isinstance(result, dict):

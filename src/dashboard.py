@@ -26,13 +26,16 @@ class Dashboard:
 
     def display_dashboard(self, place, urban_data):
         self._print_line("=")
-        print("       서울 실시간 도시데이터")
+        print("       서울 도시데이터")
         self._print_line("=")
 
         if urban_data is None:
             print("도시 데이터를 불러오지 못했습니다.")
             print("API 인증키나 네트워크 상태를 확인하세요.")
             self._print_line("-")
+
+        if is_sample_congestion(getattr(urban_data, "congestion", None)):
+            print("※ 시연 데이터입니다. 실제 API 값이 아닙니다.")
 
         self.show_area(place, urban_data)
         self.show_population(urban_data)
@@ -84,7 +87,7 @@ class Dashboard:
                 columns.append(value + " " * max(2, width - cells))
             print("".join(columns) + weather)
 
-        print("\n실시간 대시보드")
+        print("\n지원 지역 대시보드")
         print_row("지역", "인구", "혼잡도", "단계", "기온")
         print("-" * 82)
         indexed = []
