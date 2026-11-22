@@ -65,4 +65,5 @@ def test_select_comparison_areas(monkeypatch):
     first, second = selector.select_comparison_areas(manager)
 
     assert first.area_name == "강남역"
-    assert second.area_name == "홍대입구"
+    assert second.area_name == "홍대입구역(2호선)"
+

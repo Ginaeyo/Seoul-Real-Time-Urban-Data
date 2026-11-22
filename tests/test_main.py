@@ -66,7 +66,7 @@ def app(monkeypatch):
 
 
 def test_api_failure_is_reported_without_crashing(app, capsys, monkeypatch):
-    inputs = iter(["1", "3"])
+    inputs = iter(["1", "4"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     app.location_selector.result = "강남역"
@@ -79,7 +79,7 @@ def test_api_failure_is_reported_without_crashing(app, capsys, monkeypatch):
 
 
 def test_invalid_location_stops_before_api_call(app, capsys, monkeypatch):
-    inputs = iter(["1", "3"])
+    inputs = iter(["1", "4"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     app.location_selector.result = None
@@ -91,15 +91,85 @@ def test_invalid_location_stops_before_api_call(app, capsys, monkeypatch):
 
 
 def test_successful_flow_displays_data_and_analysis(app, capsys, monkeypatch):
-    inputs = iter(["1", "3"])
+    inputs = iter(["1", "4"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
-    place = "강남역"
+    place = types.SimpleNamespace(area_name="강남역")
     data = types.SimpleNamespace(congestion="붐빔")
     app.location_selector.result = place
     app.api.result = data
+    monkeypatch.setattr(
+        sys.modules["main"], "plot_area_dashboard", lambda *args: "dashboard.png"
+    )
 
     app.run()
 
     captured = capsys.readouterr()
     assert "분석: 붐빔" in captured.out
+
+
+def test_compare_flow_creates_congestion_chart(app, capsys, monkeypatch, tmp_path):
+    first = types.SimpleNamespace(area_name="강남역")
+    second = types.SimpleNamespace(area_name="홍대입구역(2호선)")
+    first_data = types.SimpleNamespace(congestion="여유")
+    second_data = types.SimpleNamespace(congestion="붐빔")
+    data_by_area = {
+        first.area_name: first_data,
+        second.area_name: second_data,
+    }
+    app.location_selector.select_comparison_areas = lambda _: (first, second)
+    app.api.get_data = lambda area: data_by_area[area.area_name]
+    app.analyzer.compare_congestion = lambda *args: "comparison summary"
+    plot_calls = []
+    monkeypatch.setattr(
+        sys.modules["main"],
+        "plot_congestion_comparison",
+        lambda *args: plot_calls.append(args) or tmp_path / "comparison.png",
+        raising=False,
+    )
+
+    app.compare_areas()
+
+    assert plot_calls == [
+        ("강남역", "여유", "홍대입구역(2호선)", "붐빔", None, None)
+    ]
+    assert "그래프 저장 위치" in capsys.readouterr().out
+
+
+def test_menu_three_displays_all_area_dashboard(app, capsys, monkeypatch):
+    areas = [types.SimpleNamespace(area_name=name) for name in ("강남역", "서울역")]
+    data = types.SimpleNamespace(congestion="보통", weather="-3°C")
+    app.area_manager.get_areas = lambda: areas
+    app.api.result = data
+    chart_rows = []
+
+    def render(rows):
+        chart_rows.extend(rows)
+        return "full_dashboard.png"
+
+    monkeypatch.setattr(sys.modules["main"], "plot_full_dashboard", render)
+    inputs = iter(["3", "", "4"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    app.run()
+
+    assert chart_rows == [(area, data) for area in areas]
+    assert "전체 대시보드 저장 위치: full_dashboard.png" in capsys.readouterr().out
+
+
+def test_mixed_sources_display_both_areas_without_ranking(app, capsys, monkeypatch):
+    first = types.SimpleNamespace(area_name="강남역")
+    second = types.SimpleNamespace(area_name="서울역")
+    live = types.SimpleNamespace(congestion="여유")
+    sample = types.SimpleNamespace(congestion="약간 붐빔 (샘플)")
+    app.location_selector.select_comparison_areas = lambda _: (first, second)
+    app.api.get_data = lambda area: live if area is first else sample
+    monkeypatch.setattr(sys.modules["main"], "plot_congestion_comparison", lambda *args: "comparison.png")
+
+    app.compare_areas()
+
+    output = capsys.readouterr().out
+    assert "첫 번째 지역 (실시간)" in output
+    assert "두 번째 지역 (시연)" in output
+    assert "혼잡도 순위는 비교하지 않습니다" in output
+    assert "comparison.png" in output

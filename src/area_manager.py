@@ -13,10 +13,11 @@ class AreaManager:
     def __init__(self):
         self.areas = [
             Place("강남역"),
-            Place("홍대입구"),
-            Place("잠실"),
-            Place("명동"),
-            Place("서울역")
+            Place("홍대입구역(2호선)"),
+            Place("잠실역"),
+            Place("명동 관광특구"),
+            Place("서울역"),
+            Place("왕십리역")
         ]
 
     def get_areas(self):
@@ -59,3 +60,4 @@ class AreaManager:
                     return area
 
         return None
+
