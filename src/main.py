@@ -53,7 +53,13 @@ class MainApp:
         self.dashboard.display(area, urban_data)
         print(self.analyzer.analyze_congestion(urban_data.congestion))
         try:
-            image_path = plot_area_dashboard(area.area_name, getattr(urban_data, "congestion", None), getattr(urban_data, "weather", None), traffic=getattr(urban_data, "traffic", None))
+            image_path = plot_area_dashboard(
+                area.area_name, urban_data.congestion, getattr(urban_data, "weather", None),
+                traffic=getattr(urban_data, "traffic", None),
+                population=getattr(urban_data, "population", None),
+                rain_chance=getattr(urban_data, "rain_chance", None),
+                dust_status=getattr(urban_data, "dust_status", None),
+            )
             print(f"상세 대시보드 저장 위치: {image_path}")
         except ImportError:
             print("시각화 기능을 사용하려면 matplotlib를 설치하세요: pip install matplotlib")
@@ -86,7 +92,18 @@ class MainApp:
                 second_area.area_name, second_data.congestion,
             ))
         try:
-            chart_path = plot_congestion_comparison(first_area.area_name, first_data.congestion, second_area.area_name, second_data.congestion, getattr(first_data, "weather", None), getattr(second_data, "weather", None), first_traffic=getattr(first_data, "traffic", None), second_traffic=getattr(second_data, "traffic", None))
+            chart_path = plot_congestion_comparison(
+                first_area.area_name, first_data.congestion, second_area.area_name, second_data.congestion,
+                getattr(first_data, "weather", None), getattr(second_data, "weather", None),
+                first_traffic=getattr(first_data, "traffic", None),
+                second_traffic=getattr(second_data, "traffic", None),
+                first_population=getattr(first_data, "population", None),
+                second_population=getattr(second_data, "population", None),
+                first_environment=(getattr(first_data, "rain_chance", None),
+                                   getattr(first_data, "dust_status", None)),
+                second_environment=(getattr(second_data, "rain_chance", None),
+                                    getattr(second_data, "dust_status", None)),
+            )
             print(f"그래프 저장 위치: {chart_path}")
         except ImportError:
             print("그래프 기능을 사용하려면 matplotlib를 설치하세요: pip install matplotlib")

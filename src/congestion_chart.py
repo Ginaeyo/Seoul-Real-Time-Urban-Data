@@ -8,21 +8,24 @@ from pathlib import Path
 PREVIEW_DPI = 70
 LEVELS = {"여유":1,"보통":2,"약간 붐빔":3,"붐빔":4}
 TRAFFIC_LEVELS = {"원활":1,"서행":2,"정체":3}
-CROWD_COLORS = ["#85a98d", "#e6cf72", "#df9666", "#bd7460"]
-TRAFFIC_COLORS = ["#76a894", "#e4c76b", "#d78363"]
-BG, INK, MUTED, LINE = "#faf7ef", "#283447", "#7d8590", "#e9e4dc"
+CROWD_COLORS = ["#397455", "#8a6800", "#a74e1c", "#ac393c"]
+TRAFFIC_COLORS = ["#397455", "#8a6800", "#ac393c"]
+BG, INK, MUTED, LINE = "#f7f8fb", "#172136", "#646f81", "#d9dde6"
+PANEL = "#eef0f6"
+ARC_COLORS = ("#48cd90", "#f5c635", "#f18549", "#e6544e")
 
 
 def _configure_font(plt, font_manager):
     manager = font_manager.fontManager
     if os.name == "nt":
         font_dir = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
-        for name in ("malgun.ttf", "malgunbd.ttf"):
+        for name in ("NotoSansKR-Regular.ttf", "NotoSansKR-Bold.ttf", "malgun.ttf", "malgunbd.ttf"):
             p = font_dir / name
             if p.is_file():
                 manager.addfont(str(p))
     installed = {f.name for f in manager.ttflist}
-    for name in ("Malgun Gothic", "Apple SD Gothic Neo", "NanumGothic", "Noto Sans CJK KR", "DejaVu Sans"):
+    for name in ("Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic",
+                 "Apple SD Gothic Neo", "NanumGothic", "DejaVu Sans"):
         if name in installed:
             plt.rcParams["font.family"] = name
             break
@@ -33,7 +36,7 @@ def _save_and_show(plt, fig, output, show):
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
-        fig.savefig(output, dpi=160, bbox_inches="tight", facecolor=BG)
+        fig.savefig(output, dpi=160, facecolor=BG)
         if show:
             from matplotlib.backend_bases import FigureManagerBase
             manager = fig.canvas.manager
@@ -62,137 +65,215 @@ def parse_temperature(weather):
     return None
 
 
-def _card(fig, rect):
+
+def _card(fig, rect, fill="white", shadow=False):
     from matplotlib.patches import FancyBboxPatch
-    ax=fig.add_axes(rect)
-    ax.axis("off")
-    ax.set_xlim(0,1);ax.set_ylim(0,1)
-    ax.add_patch(FancyBboxPatch((0.005,0.005),0.99,0.99,
-        boxstyle="round,pad=0.0,rounding_size=0.04",facecolor="white",edgecolor=LINE,lw=1.15))
+
+    ax = fig.add_axes(rect)
+    ax.set_axis_off()
+    if shadow:
+        for offset, alpha in ((.024, .025), (.014, .035), (.007, .05)):
+            ax.add_patch(FancyBboxPatch(
+                (.004, -offset), .997, 1, boxstyle="round,pad=0,rounding_size=.027",
+                transform=ax.transAxes, facecolor=INK, edgecolor="none",
+                alpha=alpha, clip_on=False,
+            ))
+    ax.add_patch(FancyBboxPatch(
+        (0, 0), 1, 1, boxstyle="round,pad=0,rounding_size=.027",
+        transform=ax.transAxes, facecolor=fill, edgecolor=LINE, linewidth=1,
+        clip_on=False,
+    ))
     return ax
 
 
-def _text(ax,x,y,s,size=13,color=INK,weight="normal",ha="left"):
-    ax.text(x,y,str(s),ha=ha,va="center",fontsize=size,color=color,fontweight=weight,
-            transform=ax.transAxes,clip_on=False)
+def _text(ax, x, y, value, size=14, color=INK, weight="normal", ha="left"):
+    ax.text(x, y, value, fontsize=size, color=color, weight=weight,
+            ha=ha, va="center", transform=ax.transAxes)
 
 
-def _gauge(ax,level,number,center,radius,palette):
+def _metric(fig, rect, title, value, color=INK, size=37):
+    ax = _card(fig, rect, shadow=True)
+    _text(ax, .09, .76, title, 19)
+    _text(ax, .09, .38, value, size, color, "bold")
+    return ax
+
+
+def _traffic_value(traffic):
+    label = str(traffic or "").strip()
+    level = TRAFFIC_LEVELS.get(label)
+    return (label, TRAFFIC_COLORS[level - 1]) if level else ("정보 없음", MUTED)
+
+
+def _traffic_comparison(fig, rect, areas):
+    ax = _card(fig, rect, shadow=True)
+    _text(ax, .09, .79, "도로 교통상황", 19)
+    for y, (name, traffic) in zip((.49, .23), areas):
+        label, color = _traffic_value(traffic)
+        _text(ax, .09, y, name, 13)
+        _text(ax, .91, y, label, 24, color, "bold", "right")
+
+
+def _header(plt, subtitle, samples):
+    fig = plt.figure(figsize=(16, 9), dpi=PREVIEW_DPI, facecolor=BG)
+    from matplotlib.patheffects import withStroke
+
+    title = fig.text(.048, .884, "서울 실시간 도시데이터", fontsize=49, weight="bold", color=INK)
+    title.set_path_effects([withStroke(linewidth=.85, foreground=INK)])
+    fig.text(.049, .826, subtitle, fontsize=25, color=MUTED)
+    source = "시연 데이터" if all(samples) else "실시간·시연 혼합" if any(samples) else "실시간 API"
+    fig.text(.947, .850, source, fontsize=13, color=MUTED, ha="right")
+    return fig
+
+
+def _gauge(fig, rect, level):
     from matplotlib.patches import Wedge
-    for i,color in enumerate(palette):
-        a1=180-(i+1)*180/number
-        a2=180-i*180/number
-        ax.add_patch(Wedge(center,radius,a1,a2,width=radius*.23,transform=ax.transAxes,
-                           facecolor=color if level is not None else "#dedede",edgecolor="none"))
-    if level is not None:
-        angle=math.radians(180-(level-.5)*180/number)
-        x=center[0]+radius*.71*math.cos(angle)
-        y=center[1]+radius*.71*math.sin(angle)
-        ax.plot([center[0],x],[center[1],y],transform=ax.transAxes,color="#586e82",lw=2.2)
-        ax.scatter([center[0]],[center[1]],transform=ax.transAxes,s=27,color="#586e82",zorder=4)
+
+    ax = fig.add_axes(rect, frameon=False)
+    ax.set(xlim=(-1.05, 1.05), ylim=(-.07, 1.05), aspect="equal")
+    ax.set_axis_off()
+    ax.add_patch(Wedge((0, 0), 1, 0, 180, width=.22, facecolor="#dfe3eb"))
+    if level:
+        stop = 180 - 45 * level
+        ax.add_patch(Wedge((0, 0), 1, stop, 180, width=.22,
+                           facecolor=ARC_COLORS[level - 1]))
+        needle = math.radians(stop + 22.5)
+        ax.plot([0, .68 * math.cos(needle)], [0, .68 * math.sin(needle)],
+                color="#62718a", lw=3, solid_capstyle="round")
+        ax.scatter([0], [0], s=31, color="#62718a", zorder=3)
 
 
-def _traffic_label(traffic):
-    return str(traffic).strip() if str(traffic).strip() in TRAFFIC_LEVELS else "정보 없음"
-
-
-def _traffic_card(ax,title,traffic,subtext=None):
-    label=_traffic_label(traffic)
-    level=TRAFFIC_LEVELS.get(label)
-    _text(ax,.07,.92,title,18,INK,"bold")
-    _gauge(ax,level,3,(.5,.61),.31,TRAFFIC_COLORS)
-    _text(ax,.5,.35,label,27,TRAFFIC_COLORS[level-1] if level else MUTED,"bold","center")
-    _text(ax,.5,.24,f"{level}/3 단계" if level else "도로소통 정보 미제공",13,MUTED,ha="center")
-    if subtext:
-        _text(ax,.5,.12,subtext,11,MUTED,ha="center")
-
-
-def _crowd_detail(ax,area,congestion,weather):
-    level,label=_normalize(congestion)
-    _text(ax,.06,.91,area,21,INK,"bold")
-    _text(ax,.06,.72,label,27,CROWD_COLORS[level-1] if level else MUTED,"bold")
-    _text(ax,.065,.61,f"{level}/4 단계" if level else "정보 없음",14,MUTED)
-    _gauge(ax,level,4,(.77,.68),.20,CROWD_COLORS)
+def _scale(ax, level, y, width):
     from matplotlib.patches import FancyBboxPatch
-    ax.add_patch(FancyBboxPatch((.05,.36),.90,.16,boxstyle="round,pad=0,rounding_size=.025",
-                 edgecolor=LINE,facecolor="#faf9f6",lw=.8,transform=ax.transAxes))
-    _text(ax,.085,.47,"혼잡도 4단계 게이지",12,INK,"bold")
-    for i,col in enumerate(CROWD_COLORS):
-        ax.add_patch(FancyBboxPatch((.12+i*.20,.405),.17,.025,
-                        boxstyle="round,pad=0.002,rounding_size=.012",facecolor=col if level and i<level else "#e3e3e3",edgecolor="none",transform=ax.transAxes))
-    ax.plot([.06,.94],[.30,.30],transform=ax.transAxes,color=LINE,lw=1)
-    _text(ax,.07,.21,"기온",13,MUTED)
-    temp=parse_temperature(weather)
-    _text(ax,.07,.12,f"{temp:.1f}°C" if temp is not None else "정보 없음",22,INK,"bold")
-    _text(ax,.54,.13,"시연 데이터" if is_sample_congestion(congestion) else "API 조회 데이터",11,MUTED)
+
+    step = width / len(ARC_COLORS)
+    left = (1 - width) / 2
+    for index, color in enumerate(ARC_COLORS, 1):
+        ax.add_patch(FancyBboxPatch(
+            (left + (index - 1) * step, y), step - .01, .028,
+            boxstyle="round,pad=0,rounding_size=.01", transform=ax.transAxes,
+            facecolor=color, edgecolor="none", alpha=1 if index == level else .62,
+        ))
 
 
-def plot_area_dashboard(area_name,congestion,weather,output_path=None,show=True,traffic=None):
-    """좌측 교통상황, 우측 인구혼잡도·기온. 기존 위치 인수 호환."""
+def _temperature_label(weather):
+    temperature = parse_temperature(weather)
+    return f"{temperature:.1f}°C" if temperature is not None else "정보 없음"
+
+
+def _population_label(population):
+    raw = str(population or "").split(" ", 1)[0].replace(",", "")
+    return f"약 {int(raw):,}명" if raw.isdecimal() else "정보 없음"
+
+
+def _environment_card(fig, readings, names=None):
+    ax = _card(fig, [.064, .309, .29, .208], shadow=True)
+    ax.plot([.56, .56], [.15, .86], color=LINE, linewidth=1, transform=ax.transAxes)
+    _text(ax, .09, .78, "강수확률", 17)
+    _text(ax, .63, .78, "미세먼지", 17)
+    dust_colors = {
+        "좋음": CROWD_COLORS[0], "보통": CROWD_COLORS[1],
+        "나쁨": CROWD_COLORS[2], "매우나쁨": CROWD_COLORS[3],
+    }
+    for index, (rain_chance, dust_status) in enumerate(readings):
+        rain = f"{rain_chance:g}%" if rain_chance is not None else "정보 없음"
+        dust = dust_status or "정보 없음"
+        color = dust_colors.get(dust.replace(" ", ""), MUTED)
+        if names:
+            y = (.47, .22)[index]
+            name = names[index]
+            compact_name = name.split("(", 1)[0]
+            if len(compact_name) > 8:
+                compact_name = compact_name[:7] + "…"
+            _text(ax, .08, y, compact_name, 10)
+            _text(ax, .53, y, rain, 18, INK, "bold", "right")
+            _text(ax, .63, y, dust, 19, color, "bold")
+        else:
+            _text(ax, .09, .34, rain, 31 if rain_chance is not None else 19, INK, "bold")
+            _text(ax, .63, .34, dust, 31 if len(dust) <= 2 else 19, color, "bold")
+
+
+def _temperature_card(fig, title, weather):
+    ax = _card(fig, [.523, .159, .334, .091])
+    _text(ax, .08, .5, title, 22, MUTED)
+    _text(ax, .92, .5, _temperature_label(weather), 25, INK, "bold", "right")
+
+
+def _classification_note(fig):
+    ax = _card(fig, [.44, .085, .499, .057], fill=PANEL)
+    _text(ax, .5, .5, "인구혼잡도는 서울시 API의 4단계 분류입니다.", 13, MUTED, ha="center")
+
+
+def plot_area_dashboard(area_name, congestion, weather, output_path=None,
+                        show=True, traffic=None, population=None,
+                        rain_chance=None, dust_status=None):
     import matplotlib.pyplot as plt
     from matplotlib import font_manager
-    _configure_font(plt,font_manager)
-    output=Path(output_path) if output_path else Path(__file__).resolve().parents[1]/"experiments"/"area_dashboard.png"
-    fig=plt.figure(figsize=(16,9),dpi=PREVIEW_DPI,facecolor=BG)
-    fig.text(.045,.92,"서울 도시데이터",fontsize=13,color="#46516a",weight="bold")
-    fig.text(.045,.82,"대시보드 화면",fontsize=31,color=INK,weight="bold")
-    fig.text(.95,.835,"단일 지역 시연 데이터" if is_sample_congestion(congestion) else "단일 지역 API 데이터",fontsize=16,color=INK,ha="right")
-    left=_card(fig,[.045,.13,.29,.61])
-    _traffic_card(left,"교통상황",traffic,"도로소통: 원활 · 서행 · 정체")
-    right=_card(fig,[.365,.13,.59,.61])
-    _crowd_detail(right,area_name,congestion,weather)
-    fig.text(.045,.058,"※ 인구혼잡도 4단계 · 도로 교통혼잡도 3단계 (퍼센트가 아닌 분류 등급)",color=MUTED,fontsize=11)
-    if is_sample_congestion(congestion):fig.text(.95,.058,"시연용 가상 데이터 · 실제 혼잡도가 아닙니다",ha="right",color="#b27649",fontsize=11)
-    _save_and_show(plt,fig,output,show)
+
+    _configure_font(plt, font_manager)
+    output = Path(output_path) if output_path else Path(__file__).resolve().parents[1] / "experiments" / "area_dashboard.png"
+    fig = _header(plt, "대시보드 화면 · 단일 지역 현황", [is_sample_congestion(congestion)])
+    level, label = _normalize(congestion)
+    status_color = CROWD_COLORS[level - 1] if level else MUTED
+    traffic_label, traffic_color = _traffic_value(traffic)
+    _metric(fig, [.064, .555, .29, .208], "도로 교통상황", traffic_label, traffic_color)
+    _environment_card(fig, [(rain_chance, dust_status)])
+    _metric(fig, [.064, .063, .29, .208], "추정 인구", _population_label(population))
+
+    frame = _card(fig, [.413, .063, .54, .70], shadow=True)
+    _text(frame, .5, .924, area_name, 24, weight="bold", ha="center")
+    panel = _card(fig, [.435, .273, .496, .414], fill=PANEL)
+    _gauge(fig, [.582, .477, .205, .187], level)
+    _text(panel, .5, .38, label, 43, status_color, "bold", "center")
+    _text(panel, .5, .22, "인구혼잡도", 17, MUTED, ha="center")
+    _scale(panel, level, .08, .62)
+    _temperature_card(fig, "기온", weather)
+    _classification_note(fig)
+    _save_and_show(plt, fig, output, show)
     return output
 
 
-def _comparison_region(ax,name,congestion,weather):
-    level,label=_normalize(congestion)
-    _text(ax,.5,.91,name,17,INK,"bold","center")
-    _gauge(ax,level,4,(.5,.62),.20,CROWD_COLORS)
-    _text(ax,.5,.42,label,22,CROWD_COLORS[level-1] if level else MUTED,"bold","center")
-    _text(ax,.5,.32,f"{level}/4 단계" if level else "정보 없음",12,MUTED,ha="center")
-    ax.plot([.08,.92],[.24,.24],transform=ax.transAxes,color=LINE,lw=1)
-    _text(ax,.09,.17,"기온",12,MUTED)
-    temp=parse_temperature(weather)
-    _text(ax,.09,.08,f"{temp:.1f}°C" if temp is not None else "정보 없음",19,INK,"bold")
+def _comparison_region(fig, left, name, congestion, weather):
+    panel = _card(fig, [left, .273, .239, .414], fill=PANEL)
+    level, label = _normalize(congestion)
+    _text(panel, .5, .884, name, 23 if len(name) <= 11 else 19, weight="bold", ha="center")
+    _gauge(fig, [left + .022, .438, .195, .160], level)
+    color = CROWD_COLORS[level - 1] if level else MUTED
+    _text(panel, .5, .334, label, 33, color, "bold", "center")
+    _scale(panel, level, .19, .84)
+    _text(panel, .10, .082, "기온", 14, MUTED)
+    _text(panel, .90, .082, _temperature_label(weather), 19, weight="bold", ha="right")
 
 
-def plot_congestion_comparison(first_area,first_congestion,second_area,second_congestion,
-        first_weather=None,second_weather=None,output_path=None,show=True,
-        first_traffic=None,second_traffic=None):
-    """좌측 교통 비교, 우측 두 지역 인구혼잡도 비교. 기존 위치 인수 호환."""
+def plot_congestion_comparison(first_area, first_congestion, second_area, second_congestion,
+                               first_weather=None, second_weather=None, output_path=None,
+                               show=True, first_traffic=None, second_traffic=None,
+                               first_population=None, second_population=None,
+                               first_environment=(None, None), second_environment=(None, None)):
     import matplotlib.pyplot as plt
     from matplotlib import font_manager
-    _configure_font(plt,font_manager)
-    output=Path(output_path) if output_path else Path(__file__).resolve().parents[1]/"experiments"/"congestion_comparison.png"
-    fig=plt.figure(figsize=(16,9),dpi=PREVIEW_DPI,facecolor=BG)
-    fig.text(.045,.92,"서울 도시데이터 · 지역 비교",fontsize=13,color="#46516a",weight="bold")
-    fig.text(.045,.82,"지역별 혼잡도 비교",fontsize=30,color=INK,weight="bold")
-    fig.text(.72,.835,"두 지역 인구혼잡도",fontsize=16,color=INK,weight="bold",ha="center")
-    a=_card(fig,[.045,.13,.29,.61])
-    _text(a,.07,.92,"교통상황 비교",18,INK,"bold")
-    for y,name,value in [(.73,first_area,first_traffic),(.42,second_area,second_traffic)]:
-        label=_traffic_label(value); level=TRAFFIC_LEVELS.get(label)
-        _text(a,.07,y,name,14,INK,"bold")
-        _text(a,.07,y-.13,label,22,TRAFFIC_COLORS[level-1] if level else MUTED,"bold")
-        for i,col in enumerate(TRAFFIC_COLORS):
-            from matplotlib.patches import FancyBboxPatch
-            pass
-        _gauge(a,level,3,(.72,y-.14),.15,TRAFFIC_COLORS)
-    t1,t2=TRAFFIC_LEVELS.get(_traffic_label(first_traffic)),TRAFFIC_LEVELS.get(_traffic_label(second_traffic))
-    if is_sample_congestion(first_congestion) != is_sample_congestion(second_congestion):
-        compare="실시간·시연 데이터는 교통상황을 비교하지 않습니다"
-    elif t1 and t2:
-        compare=(f"{first_area} 도로가 더 정체" if t1>t2 else f"{second_area} 도로가 더 정체" if t2>t1 else "두 지역 도로소통 상태 동일")
-    else: compare="교통 정보가 없어 비교할 수 없습니다"
-    _text(a,.07,.14,compare,11,MUTED)
-    first=_card(fig,[.365,.13,.28,.61]);second=_card(fig,[.67,.13,.285,.61])
-    _comparison_region(first,first_area,first_congestion,first_weather)
-    _comparison_region(second,second_area,second_congestion,second_weather)
-    sample1=is_sample_congestion(first_congestion);sample2=is_sample_congestion(second_congestion)
-    fig.text(.045,.057,"※ 교통혼잡도는 도로소통 등급이며 보행 인구혼잡도와 다른 지표입니다.",color=MUTED,fontsize=10)
-    if sample1 or sample2:fig.text(.95,.057,"시연 데이터 포함 · 실제 측정값 아님" if sample1==sample2 else "실시간·시연 혼합: 비교 주의",color="#b27649",fontsize=10,ha="right")
-    _save_and_show(plt,fig,output,show)
+
+    _configure_font(plt, font_manager)
+    output = Path(output_path) if output_path else Path(__file__).resolve().parents[1] / "experiments" / "congestion_comparison.png"
+    samples = [is_sample_congestion(first_congestion), is_sample_congestion(second_congestion)]
+    comparable = samples[0] == samples[1]
+    fig = _header(plt, "대시보드 화면 · 두 지역 혼잡도 비교", samples)
+
+    _traffic_comparison(fig, [.064, .555, .29, .208],
+                        [(first_area, first_traffic), (second_area, second_traffic)])
+    _environment_card(fig, [first_environment, second_environment], [first_area, second_area])
+    population = _card(fig, [.064, .063, .29, .208], shadow=True)
+    _text(population, .09, .79, "추정 인구", 19)
+    for y, (name, value) in zip((.49, .23), [(first_area, first_population), (second_area, second_population)]):
+        _text(population, .09, y, name, 13)
+        _text(population, .91, y, _population_label(value), 15, INK, "bold", "right")
+
+    frame = _card(fig, [.413, .063, .54, .70], shadow=True)
+    _text(frame, .5, .924, f"{first_area} vs {second_area}", 21, weight="bold", ha="center")
+    _comparison_region(fig, .435, first_area, first_congestion, first_weather)
+    _comparison_region(fig, .692, second_area, second_congestion, second_weather)
+    temps = [parse_temperature(first_weather), parse_temperature(second_weather)]
+    average = sum(temps) / 2 if comparable and None not in temps else None
+    _temperature_card(fig, "평균 기온", average)
+    _classification_note(fig)
+    _save_and_show(plt, fig, output, show)
     return output

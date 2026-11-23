@@ -24,7 +24,8 @@ class SeoulAPI:
         print("샘플 데이터를 사용합니다.")
         congestion, weather, traffic = self.SAMPLE_VALUES.get(area_name, ("보통", "18.5°C", "원활"))
         return UrbanData(area_name=area_name, congestion=f"{congestion} (샘플)",
-                         weather=weather, traffic=traffic, traffic_sample=True, data_source="sample")
+                         weather=weather, traffic=traffic, traffic_sample=True, data_source="sample",
+                         rain_chance=10, dust_status="좋음")
 
     def get_data(self, place):
         area_name = getattr(place, "area_name", None) or str(place)
@@ -90,6 +91,20 @@ class SeoulAPI:
                 weather = f"{temperature}°C" if math.isfinite(float(temperature)) else "정보 없음"
             except (TypeError, ValueError, OverflowError):
                 weather = "정보 없음"
+            forecast = weather_data.get("FCST24HOURS")
+            if isinstance(forecast, list):
+                forecast = forecast[0] if forecast else None
+            rain_chance = None
+            if isinstance(forecast, dict):
+                try:
+                    probability = float(str(forecast.get("RAIN_CHANCE")).strip().removesuffix("%"))
+                    if 0 <= probability <= 100:
+                        rain_chance = probability
+                except ValueError:
+                    pass
+            dust_status = str(weather_data.get("PM10_INDEX") or "").strip()
+            if dust_status not in ("좋음", "보통", "나쁨", "매우나쁨", "매우 나쁨"):
+                dust_status = None
             congestion = population.get("AREA_CONGEST_LVL")
             if isinstance(congestion, str):
                 congestion = congestion.strip()
@@ -108,6 +123,8 @@ class SeoulAPI:
                 updated_at=updated_at,
                 traffic=traffic,
                 data_source="api",
+                rain_chance=rain_chance,
+                dust_status=dust_status,
             )
         except (requests.RequestException, ValueError):
             # An exception can contain the URL and its API key.

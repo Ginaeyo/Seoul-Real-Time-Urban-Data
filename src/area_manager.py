@@ -33,6 +33,7 @@ class AreaManager:
             Place("잠실종합운동장"),
             Place("노들섬"),
             Place("어린이대공원"),
+            Place("왕십리역"),
         ]
 
     def get_areas(self):
