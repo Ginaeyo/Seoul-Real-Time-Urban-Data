@@ -41,7 +41,10 @@ def test_api_success_returns_real_data(monkeypatch):
                     "LIVE_PPLTN_STTS": [
                         {"AREA_CONGEST_LVL": "붐빔"}
                     ],
-                    "ROAD_TRAFFIC_STTS": [{"ROAD_TRAFFIC_IDX": "소통원활"}],
+                    "ROAD_TRAFFIC_STTS": {
+                        "AVG_ROAD_DATA": {"ROAD_TRAFFIC_IDX": "소통원활"},
+                        "ROAD_TRAFFIC_STTS": [{"IDX": "정체"}],
+                    },
                     "WEATHER_STTS": [
                         {"TEMP": "20"}
                     ]

@@ -60,7 +60,12 @@ class SeoulAPI:
                 traffic_section = traffic_section[0] if traffic_section else {}
             if not isinstance(traffic_section, dict):
                 traffic_section = {}
-            traffic = traffic_section.get("ROAD_TRAFFIC_IDX")
+            average_road_data = traffic_section.get("AVG_ROAD_DATA")
+            if isinstance(average_road_data, list):
+                average_road_data = average_road_data[0] if average_road_data else None
+            if not isinstance(average_road_data, dict):
+                average_road_data = traffic_section
+            traffic = average_road_data.get("ROAD_TRAFFIC_IDX")
             if isinstance(traffic, dict):
                 traffic = traffic.get("ROAD_TRAFFIC_IDX")
             if isinstance(traffic, list):
