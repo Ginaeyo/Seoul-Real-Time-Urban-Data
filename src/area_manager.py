@@ -11,12 +11,29 @@ from place import Place
 class AreaManager:
 
     def __init__(self):
+        # 표시 이름과 API 장소명이 다른 경우 두 번째 인수로 공식 장소명을 사용합니다.
         self.areas = [
             Place("강남역"),
-            Place("홍대입구"),
-            Place("잠실"),
-            Place("명동"),
-            Place("서울역")
+            Place("홍대입구역(2호선)"),
+            Place("잠실역"),
+            Place("명동 관광특구"),
+            Place("서울역"),
+            Place("건대입구역"),
+            Place("성수카페거리"),
+            Place("이태원 관광특구"),
+            Place("고속터미널역"),
+            Place("광화문·덕수궁"),
+            Place("여의도한강공원"),
+            Place("반포한강공원"),
+            Place("서울숲공원"),
+            Place("광화문광장"),
+            Place("DDP(동대문디자인플라자)"),
+            Place("남대문시장"),
+            Place("고척돔"),
+            Place("잠실종합운동장"),
+            Place("노들섬"),
+            Place("어린이대공원"),
+            Place("왕십리역"),
         ]
 
     def get_areas(self):
@@ -59,3 +76,4 @@ class AreaManager:
                     return area
 
         return None
+

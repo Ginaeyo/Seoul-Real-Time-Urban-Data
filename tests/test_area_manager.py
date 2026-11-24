@@ -23,7 +23,7 @@ def test_get_area_invalid_index():
     manager = AreaManager()
 
     assert manager.get_area(0) is None
-    assert manager.get_area(6) is None
+    assert manager.get_area(len(manager.get_areas()) + 1) is None
 
 
 def test_area_codes_are_not_invented():
@@ -36,7 +36,7 @@ def test_get_areas_returns_all_places():
 
     result = manager.get_areas()
 
-    assert len(result) == 5
+    assert len(result) == 21
     assert all(isinstance(area, Place) for area in result)
 
 
@@ -52,7 +52,16 @@ def test_search_areas_by_name():
 def test_get_area_by_name():
     manager = AreaManager()
 
-    result = manager.get_area("홍대입구")
+    result = manager.get_area("홍대입구역(2호선)")
 
     assert isinstance(result, Place)
-    assert result.area_name == "홍대입구"
+    assert result.area_name == "홍대입구역(2호선)"
+
+
+def test_wangsimni_uses_official_area_name():
+    manager = AreaManager()
+
+    area = manager.get_area("왕십리역")
+
+    assert isinstance(area, Place)
+    assert area.area_name == "왕십리역"

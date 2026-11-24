@@ -6,10 +6,10 @@ TODO(담당: 원미혜 / 데이터 필드 협의: 민경환)
 - API 요청이나 데이터 분석은 이 모듈에서 수행하지 않는다.
 """
 
-MISSING = "정보 없음"
 
-# 서울시 실시간 도시데이터의 혼잡도 단계 (AREA_CONGEST_LVL)
-CONGESTION_LEVELS = ["여유", "보통", "약간 붐빔", "붐빔"]
+from congestion_chart import is_sample_congestion
+
+MISSING = "정보 없음"
 
 
 class Dashboard:
@@ -22,18 +22,24 @@ class Dashboard:
 
     def display_dashboard(self, place, urban_data):
         self._print_line("=")
-        print("       SEOUL REAL-TIME URBAN DATA")
+        print("       서울 도시데이터")
         self._print_line("=")
 
-        # API 키가 없거나 요청이 실패하면 urban_data가 None으로 들어온다.
         if urban_data is None:
             print("도시 데이터를 불러오지 못했습니다.")
             print("API 인증키나 네트워크 상태를 확인하세요.")
             self._print_line("-")
 
+        if is_sample_congestion(getattr(urban_data, "congestion", None)):
+            print("※ 시연 데이터입니다. 실제 API 값이 아닙니다.")
+
         self.show_area(place, urban_data)
         self.show_population(urban_data)
         self.show_weather(urban_data)
+        self.show_traffic(urban_data)
+        updated_at = getattr(urban_data, "updated_at", None)
+        if not self._is_missing(updated_at):
+            print(f"[갱신 시각] {updated_at}")
 
         self._print_line("=")
         print("       데이터 조회가 완료되었습니다.")
@@ -53,17 +59,18 @@ class Dashboard:
     def show_population(self, urban_data):
         congestion = self._text(getattr(urban_data, "congestion", None))
         print(f"[혼잡도] {congestion}")
-
-        # 알려진 단계일 때만 게이지를 함께 보여준다. 예: [###-] 3/4 단계
-        if congestion in CONGESTION_LEVELS:
-            level = CONGESTION_LEVELS.index(congestion) + 1
-            total = len(CONGESTION_LEVELS)
-            bar = "#" * level + "-" * (total - level)
-            print(f"         [{bar}] {level}/{total} 단계")
+        population = getattr(urban_data, "population", None)
+        if not self._is_missing(population):
+            print(f"[인구]   {population}")
 
     def show_weather(self, urban_data):
         weather = getattr(urban_data, "weather", None)
         print(f"[기온]   {self._temperature(weather)}")
+
+    def show_traffic(self, urban_data):
+        value = getattr(urban_data, "traffic", None) or MISSING
+        note = " (샘플)" if getattr(urban_data, "traffic_sample", False) else ""
+        print(f"[도로 교통] {value}{note}")
 
     def _temperature(self, value):
         # 숫자로 바꿀 수 있으면 °C 단위를 붙이고, 아니면 그대로 보여준다.
