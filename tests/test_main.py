@@ -61,7 +61,7 @@ def app(monkeypatch):
 
     sys.modules.pop("main", None)
     main = importlib.import_module("main")
-    yield main.MainApp()
+    yield main.MainApp(FakeSeoulAPI())
     sys.modules.pop("main", None)
 
 

@@ -1,31 +1,22 @@
 """서울 실시간 도시데이터 API 요청과 응답 변환을 담당합니다."""
+from data_provider import DataProvider
 import math
 import os
 from urllib.parse import quote
 import requests
 from urban_data import UrbanData
+from sample_data_provider import SampleDataProvider
 
 
-class SeoulAPI:
+class SeoulAPI(DataProvider):
     BASE_URL = "http://openapi.seoul.go.kr:8088"
 
-    SAMPLE_VALUES = {
-        "강남역": ("약간 붐빔", "18.5°C", "서행"),
-        "홍대입구역(2호선)": ("붐빔", "16.3°C", "정체"),
-        "잠실역": ("보통", "17.2°C", "원활"),
-        "명동 관광특구": ("약간 붐빔", "19.0°C", "서행"),
-        "서울역": ("여유", "15.8°C", "원활"),
-    }
 
     def __init__(self, api_key=None):
         self.api_key = (api_key or os.getenv("SEOUL_API_KEY", "")).strip()
 
     def sample_data(self, area_name):
-        print("샘플 데이터를 사용합니다.")
-        congestion, weather, traffic = self.SAMPLE_VALUES.get(area_name, ("보통", "18.5°C", "원활"))
-        return UrbanData(area_name=area_name, congestion=f"{congestion} (샘플)",
-                         weather=weather, traffic=traffic, traffic_sample=True, data_source="sample",
-                         rain_chance=10, dust_status="좋음")
+        return SampleDataProvider().get_data(area_name)
 
     def get_data(self, place):
         area_name = getattr(place, "area_name", None) or str(place)

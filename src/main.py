@@ -1,6 +1,7 @@
 """프로그램 실행 흐름과 콘솔 기반 시각화를 연결합니다."""
 
 import sys
+from data_provider import DataProvider
 
 from area_manager import AreaManager
 from location_selector import LocationSelector
@@ -13,12 +14,11 @@ from congestion_chart import (
     plot_congestion_comparison,
 )
 
-
 class MainApp:
-    def __init__(self):
+    def __init__(self, api: DataProvider):
         self.area_manager = AreaManager()
         self.location_selector = LocationSelector()
-        self.api = SeoulAPI()
+        self.api = api
         self.analyzer = DataAnalyzer()
         self.dashboard = Dashboard()
 
@@ -118,6 +118,6 @@ if __name__ == "__main__":
         if hasattr(stream, "reconfigure") and not stream.isatty():
             stream.reconfigure(encoding="utf-8")
     try:
-        MainApp().run()
+        MainApp(SeoulAPI()).run()
     except (EOFError, KeyboardInterrupt):
         print("\n프로그램을 종료합니다.")
