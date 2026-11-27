@@ -15,8 +15,4 @@ class UrbanData:
         self.rain_chance = rain_chance
         self.dust_status = dust_status
 
-    def display_info(self):
-        print(f"\n지역: {self.area_name or '정보 없음'}")
-        print(f"혼잡도: {self.congestion or '정보 없음'}")
-        print(f"날씨: {self.weather or '정보 없음'}")
-        print(f"교통상황: {self.traffic or '정보 없음'}")
+   
